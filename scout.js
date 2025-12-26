@@ -48,7 +48,7 @@ const CONSTANTS = {
     DEBOUNCE_TIME: 100,
     
     // API常量
-    API_URL: 'http://localhost:8080/api/scouting-data',
+    API_URL: 'http://localhost:8080',
     API_URL_STORAGE_KEY: 'ftc-scout-api-url'
 };
 
