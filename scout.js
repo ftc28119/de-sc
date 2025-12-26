@@ -1026,11 +1026,11 @@ function showDeleteAccountModal(profileModal) {
         <div class="error-message" id="deleteError"></div>
     `);
     
-    // 添加确认删除按钮
+    // 确认删除按钮
     const confirmBtn = document.createElement('button');
     confirmBtn.textContent = '确认删除';
     confirmBtn.className = 'btn-primary';
-    confirmBtn.style.backgroundColor = '#dc3545';
+    confirmBtn.style.backgroundColor = '#e74c3c';
     confirmBtn.onclick = async () => {
         const password = document.getElementById('deletePassword').value;
         const errorElement = document.getElementById('deleteError');
@@ -1039,30 +1039,27 @@ function showDeleteAccountModal(profileModal) {
         errorElement.textContent = '';
         errorElement.style.display = 'none';
         
+        // 前端验证
         if (!password) {
-            errorElement.textContent = '请输入密码';
+            errorElement.textContent = '请输入密码确认';
             errorElement.style.display = 'block';
             return;
         }
         
         // 调用删除账号函数
         const result = await deleteUser(password);
-        
         if (result.success) {
-            // 删除成功，关闭模态框
+            alert('账号已成功删除！');
             closeModal(modal);
-            // 显示成功消息
-            showSuccess('账号已成功删除');
-            // 更新认证UI
-            updateAuthUI();
+            // 跳转到登录页面或刷新页面
+            window.location.reload();
         } else {
-            // 删除失败，显示错误信息
-            errorElement.textContent = result.message || '删除账号失败';
+            errorElement.textContent = result.message || '删除账号失败，请稍后重试';
             errorElement.style.display = 'block';
         }
     };
     
-    // 添加取消按钮
+    // 取消按钮
     const cancelBtn = document.createElement('button');
     cancelBtn.textContent = '取消';
     cancelBtn.className = 'btn-secondary';
@@ -1070,8 +1067,8 @@ function showDeleteAccountModal(profileModal) {
     
     const buttonsContainer = document.createElement('div');
     buttonsContainer.className = 'button-group';
-    buttonsContainer.appendChild(cancelBtn);
     buttonsContainer.appendChild(confirmBtn);
+    buttonsContainer.appendChild(cancelBtn);
     
     modal.querySelector('.modal-content').appendChild(buttonsContainer);
 }
@@ -1947,7 +1944,10 @@ function showUserData() {
     const modal = createModal('查看数据', `
         <div class="form-group">
             <label for="searchTeamNumber">搜索队伍编号</label>
-            <input type="text" id="searchTeamNumber" placeholder="请输入队伍编号">
+            <div style="position: relative;">
+                <input type="text" id="searchTeamNumber" placeholder="请输入队伍编号">
+                <div id="teamNumberSuggestions" class="suggestions-list"></div>
+            </div>
         </div>
         <div class="data-table-container">
             <table id="userDataTable">
@@ -1968,11 +1968,119 @@ function showUserData() {
         </div>
     `);
     
+    // 添加CSS样式
+    const style = document.createElement('style');
+    style.textContent = `
+        .suggestions-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+        }
+        
+        .suggestion-item {
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .suggestion-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .suggestion-item.active {
+            background-color: #e3f2fd;
+        }
+    `;
+    modal.querySelector('.modal-content').appendChild(style);
+    
     // 加载数据
     loadUserData();
     
     // 添加搜索事件监听
-    document.getElementById('searchTeamNumber').addEventListener('input', loadUserData);
+    const searchInput = document.getElementById('searchTeamNumber');
+    const suggestionsList = document.getElementById('teamNumberSuggestions');
+    
+    // 保存所有队伍编号
+    let allTeamNumbers = [];
+    
+    // 加载所有队伍编号
+    async function loadAllTeamNumbers() {
+        try {
+            const response = await fetch(`${getApiUrl()}/api/scouting-data`);
+            if (response.ok) {
+                const result = await response.json();
+                const data = result.data || [];
+                // 获取所有唯一的队伍编号
+                allTeamNumbers = [...new Set(data.map(item => item.teamNumber))].sort();
+            }
+        } catch (error) {
+            console.error('加载队伍编号失败:', error);
+        }
+    }
+    
+    // 加载所有队伍编号
+    loadAllTeamNumbers();
+    
+    // 显示联想建议
+    function showSuggestions(query) {
+        if (!query) {
+            suggestionsList.innerHTML = '';
+            suggestionsList.style.display = 'none';
+            return;
+        }
+        
+        // 过滤匹配的队伍编号
+        const filteredNumbers = allTeamNumbers.filter(teamNumber => 
+            teamNumber.includes(query)
+        );
+        
+        if (filteredNumbers.length === 0) {
+            suggestionsList.innerHTML = '';
+            suggestionsList.style.display = 'none';
+            return;
+        }
+        
+        // 生成联想建议列表
+        suggestionsList.innerHTML = filteredNumbers.map(teamNumber => 
+            `<div class="suggestion-item" data-team-number="${teamNumber}">${teamNumber}</div>`
+        ).join('');
+        
+        suggestionsList.style.display = 'block';
+        
+        // 添加点击事件监听
+        suggestionsList.querySelectorAll('.suggestion-item').forEach(item => {
+            item.addEventListener('click', () => {
+                searchInput.value = item.dataset.teamNumber;
+                suggestionsList.innerHTML = '';
+                suggestionsList.style.display = 'none';
+                loadUserData();
+            });
+        });
+    }
+    
+    // 为搜索输入框添加input事件监听
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value;
+        showSuggestions(query);
+        loadUserData();
+    });
+    
+    // 点击外部关闭联想建议
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.form-group')) {
+            suggestionsList.innerHTML = '';
+            suggestionsList.style.display = 'none';
+        }
+    });
     
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '关闭';
