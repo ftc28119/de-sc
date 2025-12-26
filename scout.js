@@ -1285,6 +1285,10 @@ document.addEventListener('DOMContentLoaded', function() {
         loadData();
         console.log('数据加载完成');
         
+        document.getElementById('threeInThree').value = document.getElementById('threeInThree').value || 0;
+        document.getElementById('threeInTwo').value = document.getElementById('threeInTwo').value || 0;
+        document.getElementById('threeInOne').value = document.getElementById('threeInOne').value || 0;
+        
         console.log('初始化auto槽位...');
         initSlots('auto');
         console.log('auto槽位初始化完成');
@@ -1840,6 +1844,9 @@ function resetData() {
             driverPerformance: CONSTANTS.DEFAULT_DRIVER_RATING,
             defenseRating: CONSTANTS.DEFAULT_DEFENSE_RATING,
             diedOnField: false,
+            threeInThree: 0,
+            threeInTwo: 0,
+            threeInOne: 0,
             notes: ""
         }
     };
@@ -1859,6 +1866,9 @@ function resetData() {
     document.getElementById('teleOpDepot').value = 0;
     document.getElementById('teleOpOverflow').value = 0;
     document.getElementById('teleOpClassified').value = 0;
+    document.getElementById('threeInThree').value = 0;
+    document.getElementById('threeInTwo').value = 0;
+    document.getElementById('threeInOne').value = 0;
     document.getElementById('baseReturn').value = 'None';
     document.getElementById('diedOnField').checked = false;
     document.getElementById('notes').value = '';
