@@ -68,6 +68,84 @@
             transition: all 0.3s ease;
             position: relative;
         }
+        
+        /* 优化表单元素的移动端体验 */
+        input, select, textarea {
+            /* 增大点击区域 */
+            min-height: 48px;
+            line-height: 28px;
+        }
+        
+        /* 优化选择框样式 */
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 40px;
+        }
+        
+        /* 优化文本域 */
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        /* 优化开关组件 */
+        .switch {
+            width: 70px;
+            height: 40px;
+        }
+        
+        .slider {
+            border-radius: 20px;
+        }
+        
+        .slider:before {
+            height: 32px;
+            width: 32px;
+            left: 4px;
+            bottom: 4px;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+        
+        /* 优化评分按钮 */
+        .rating {
+            justify-content: center;
+        }
+        
+        .rating button {
+            min-width: 40px;
+            min-height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* 优化步进器组件 */
+        .stepper {
+            align-items: center;
+        }
+        
+        .stepper button {
+            min-width: 50px;
+            min-height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+        
+        .stepper input {
+            min-width: 80px;
+            text-align: center;
+            font-size: 18px;
+        }
 
         input:focus, select:focus, textarea:focus {
             outline: none;
@@ -409,6 +487,7 @@
             max-height: 400px;
             overflow-y: auto;
             margin: 20px 0;
+            position: relative;
         }
 
         #userDataTable {
@@ -423,6 +502,7 @@
             color: white;
             position: sticky;
             top: 0;
+            z-index: 10;
         }
 
         #userDataTable th,
@@ -430,10 +510,44 @@
             padding: 8px 12px;
             text-align: left;
             border: 1px solid #ddd;
+            white-space: nowrap;
         }
 
         #userDataTable tbody tr:hover {
             background-color: #f5f5f5;
+        }
+        
+        /* 优化数据表格的移动端显示 */
+        .data-table-container {
+            overflow-x: auto;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        /* 优化表格中的按钮 */
+        #userDataTable button {
+            width: auto;
+            padding: 5px 10px;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+        
+        /* 在移动端优化表格行间距 */
+        @media (max-width: 768px) {
+            /* 调整表格行高度 */
+            #userDataTable th,
+            #userDataTable td {
+                padding: 8px 5px;
+                font-size: 12px;
+            }
+            
+            /* 调整表格按钮大小 */
+            #userDataTable button {
+                padding: 4px 8px;
+                font-size: 12px;
+                margin-right: 3px;
+            }
         }
 
         /* 按钮样式 */
@@ -466,6 +580,149 @@
 
         .modal-content.detailed {
             max-width: 90% !important;
+        }
+        
+        /* 响应式设计 - 移动端适配 */
+        @media (max-width: 768px) {
+            /* 调整容器内边距 */
+            .container {
+                padding: 10px;
+            }
+            
+            /* 调整按钮组布局 */
+            .button-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            /* 调整按钮大小 */
+            button {
+                padding: 12px 20px;
+                font-size: 18px;
+                width: 100%;
+            }
+            
+            /* 调整表单行布局 */
+            .form-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            /* 调整表单组宽度 */
+            .form-group {
+                min-width: 100%;
+            }
+            
+            /* 调整分数显示 */
+            .scores-display {
+                padding: 15px;
+            }
+            
+            .score-item {
+                display: block;
+                margin-right: 0;
+                margin-bottom: 10px;
+                width: 100%;
+            }
+            
+            /* 调整标题大小 */
+            h1 {
+                font-size: 24px;
+            }
+            
+            h2 {
+                font-size: 20px;
+            }
+            
+            h3 {
+                font-size: 18px;
+            }
+            
+            /* 调整槽位大小 */
+            .slots-container {
+                grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+                gap: 8px;
+            }
+            
+            /* 调整步进器 */
+            .stepper {
+                justify-content: space-between;
+            }
+            
+            .stepper button {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+            
+            .stepper input {
+                width: 80px;
+                text-align: center;
+            }
+            
+            /* 调整评分按钮 */
+            .rating {
+                justify-content: space-between;
+            }
+            
+            .rating button {
+                flex: 1;
+                padding: 8px 10px;
+                font-size: 16px;
+            }
+            
+            /* 调整数据表格 */
+            .data-table-container {
+                overflow-x: auto;
+                max-height: 300px;
+            }
+            
+            #userDataTable {
+                min-width: 100%;
+                font-size: 12px;
+            }
+            
+            #userDataTable th,
+            #userDataTable td {
+                padding: 6px 8px;
+            }
+            
+            /* 调整详细数据表格 */
+            .detailed-data-table {
+                font-size: 14px;
+                min-width: 100%;
+            }
+            
+            .detailed-data-table th,
+            .detailed-data-table td {
+                padding: 8px 10px;
+            }
+            
+            /* 调整模态框 */
+            .modal-content {
+                max-width: 95% !important;
+                margin: 10px;
+            }
+            
+            /* 调整队伍成员显示 */
+            .team-members {
+                flex-direction: column;
+            }
+            
+            .team-member {
+                text-align: center;
+            }
+            
+            /* 调整邀请码容器 */
+            .invite-code-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .copy-btn {
+                width: auto;
+            }
         }
         
         /* 队伍和个人信息面板样式 */
