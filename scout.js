@@ -1945,7 +1945,7 @@ function showUserData() {
         <div class="form-group">
             <label for="searchTeamNumber">搜索队伍编号</label>
             <div style="position: relative;">
-                <input type="text" id="searchTeamNumber" placeholder="请输入队伍编号">
+                <input type="text" id="searchTeamNumber" placeholder="请输入队伍编号(支持联想)">
                 <div id="teamNumberSuggestions" class="suggestions-list"></div>
             </div>
         </div>
