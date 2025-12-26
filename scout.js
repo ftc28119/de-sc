@@ -1025,6 +1025,55 @@ function showDeleteAccountModal(profileModal) {
         </div>
         <div class="error-message" id="deleteError"></div>
     `);
+    
+    // 添加确认删除按钮
+    const confirmBtn = document.createElement('button');
+    confirmBtn.textContent = '确认删除';
+    confirmBtn.className = 'btn-primary';
+    confirmBtn.style.backgroundColor = '#dc3545';
+    confirmBtn.onclick = async () => {
+        const password = document.getElementById('deletePassword').value;
+        const errorElement = document.getElementById('deleteError');
+        
+        // 清除之前的错误信息
+        errorElement.textContent = '';
+        errorElement.style.display = 'none';
+        
+        if (!password) {
+            errorElement.textContent = '请输入密码';
+            errorElement.style.display = 'block';
+            return;
+        }
+        
+        // 调用删除账号函数
+        const result = await deleteUser(password);
+        
+        if (result.success) {
+            // 删除成功，关闭模态框
+            closeModal(modal);
+            // 显示成功消息
+            showSuccess('账号已成功删除');
+            // 更新认证UI
+            updateAuthUI();
+        } else {
+            // 删除失败，显示错误信息
+            errorElement.textContent = result.message || '删除账号失败';
+            errorElement.style.display = 'block';
+        }
+    };
+    
+    // 添加取消按钮
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = '取消';
+    cancelBtn.className = 'btn-secondary';
+    cancelBtn.onclick = () => closeModal(modal);
+    
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.className = 'button-group';
+    buttonsContainer.appendChild(cancelBtn);
+    buttonsContainer.appendChild(confirmBtn);
+    
+    modal.querySelector('.modal-content').appendChild(buttonsContainer);
 }
 
 // 显示更改密码模态框
