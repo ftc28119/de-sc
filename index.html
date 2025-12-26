@@ -53,6 +53,26 @@
             min-width: 200px;
         }
 
+        /* 确保通用信息部分的评分组件横向排列 */
+        #generalContent .form-row {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 20px;
+        }
+
+        #generalContent .form-group {
+            flex: 1;
+            min-width: auto;
+        }
+
+        /* 确保评分按钮横向排列 */
+        #driverRatingContainer,
+        #defenseRatingContainer {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
         label {
             display: block;
             margin-bottom: 5px;
@@ -147,20 +167,72 @@
             font-size: 18px;
         }
 
+        /* 现代化配色方案 */
+        :root {
+            --primary-color: #4a90e2;
+            --primary-hover: #357abd;
+            --secondary-color: #6c757d;
+            --secondary-hover: #5a6268;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --background-color: #f5f7fa;
+            --card-background: #ffffff;
+            --border-color: #e9ecef;
+            --text-color: #212529;
+            --text-secondary: #6c757d;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 优化整体配色 */
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #5c9de0);
+            box-shadow: var(--shadow-md);
+        }
+
+        .form-section {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .form-section:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        /* 增强表单元素交互 */
+        input, select, textarea {
+            border-color: var(--border-color);
+            transition: var(--transition);
+        }
+
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
             transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
         input:valid, select:valid, textarea:valid {
-            border-color: #2ecc71;
+            border-color: var(--success-color);
         }
 
         /* 为数值输入框添加特殊动画 */
         input[type="number"] {
-            transition: border-color 0.3s, box-shadow 0.3s;
+            transition: var(--transition);
         }
 
         input[type="number"]::-webkit-inner-spin-button,
@@ -175,22 +247,31 @@
             margin-top: 20px;
         }
 
+        /* 增强按钮交互体验 */
         button {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
         button:active {
             transform: translateY(1px);
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow-sm);
         }
 
+        /* 按钮波纹效果 */
         button::after {
             content: '';
             position: absolute;
@@ -199,7 +280,7 @@
             width: 0;
             height: 0;
             border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.6);
             transform: translate(-50%, -50%);
             transition: width 0.6s, height 0.6s;
         }
@@ -209,95 +290,268 @@
             height: 300px;
         }
 
+        /* 现代化按钮样式 */
         .btn-primary {
-            background-color: #3498db;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
             color: white;
         }
 
         .btn-primary:hover {
-            background-color: #2980b9;
+            background: linear-gradient(135deg, var(--primary-hover), #2c6aa5);
         }
 
         .btn-secondary {
-            background-color: #95a5a6;
+            background: linear-gradient(135deg, var(--secondary-color), var(--secondary-hover));
             color: white;
         }
 
         .btn-secondary:hover {
-            background-color: #7f8c8d;
+            background: linear-gradient(135deg, var(--secondary-hover), #495057);
         }
 
-        .scores-display {
-            background-color: #ecf0f1;
-            padding: 20px;
+        /* 评分按钮动画 */
+        .rating button {
+            background-color: var(--border-color);
+            color: var(--text-secondary);
             border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .rating button:hover {
+            background-color: #d6d8db;
+            transform: scale(1.05);
+        }
+
+        .rating button.active {
+            background: linear-gradient(135deg, var(--warning-color), #e0a800);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* 分数显示区域优化 */
+        .scores-display {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 25px;
+            border-radius: 12px;
             margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .scores-display:hover {
+            box-shadow: var(--shadow-md);
         }
 
         .score-item {
             display: inline-block;
             margin-right: 20px;
-            padding: 10px;
+            padding: 15px 20px;
             background-color: white;
-            border-radius: 4px;
-            min-width: 100px;
+            border-radius: 10px;
+            min-width: 120px;
             text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+        }
+
+        .score-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
         .score-value {
-            font-size: 24px;
+            font-size: 32px;
             font-weight: bold;
-            color: #3498db;
+            color: var(--primary-color);
+            transition: var(--transition);
         }
 
+        /* 分数更新动画 */
+        .score-value.updating {
+            animation: scoreUpdate 0.6s ease-in-out;
+        }
+
+        @keyframes scoreUpdate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* 排序分数动画 */
+        #autoSortingScore.updating,
+        #teleOpSortingScore.updating {
+            animation: scoreUpdate 0.6s ease-in-out;
+        }
+
+        /* 表单部分淡入效果 */
+        .form-section {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        /* 插槽颜色变化动画 */
+        .slot {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .slot.green,
+        .slot.purple {
+            animation: colorChange 0.3s ease-in-out;
+        }
+
+        @keyframes colorChange {
+            from { transform: scale(0.9); opacity: 0.8; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* 阶段切换动画 */
+        #autoToggle,
+        #teleOpToggle,
+        #generalToggle {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        /* 按钮加载动画 */
+        button.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        button.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* 平滑滚动效果 */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* 输入框焦点动画 */
+        input:focus,
+        select:focus,
+        textarea:focus {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 评分按钮点击动画 */
+        .rating button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .rating button:active {
+            transform: scale(0.95);
+        }
+
+        /* 复制按钮动画 */
+        .copy-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 模态框背景淡化动画 */
+        .modal {
+            animation: fadeInBackground 0.3s ease-in-out;
+        }
+
+        @keyframes fadeInBackground {
+            from { background-color: rgba(0, 0, 0, 0); }
+            to { background-color: rgba(0, 0, 0, 0.5); }
+        }
+
+        /* 阶段标题优化 */
         .phase-section {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .phase-header {
-            background-color: #3498db;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
             color: white;
-            padding: 10px;
-            border-radius: 4px;
+            padding: 15px 20px;
+            border-radius: 10px;
             cursor: pointer;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
         }
 
+        .phase-header:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* 阶段内容优化 */
         .phase-content {
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: var(--shadow-sm);
+            animation: fadeIn 0.3s ease-in-out;
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 优化插槽容器 */
         .slots-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 10px;
-            margin: 20px 0;
+            gap: 12px;
+            margin: 25px 0;
         }
 
+        /* 增强插槽交互效果 */
         .slot {
             width: 100%;
             aspect-ratio: 1;
-            border: 2px solid #ddd;
-            border-radius: 4px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
             font-weight: bold;
-            transition: all 0.3s;
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
+            background-color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .slot:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
         }
 
         .slot:active {
             transform: scale(0.95);
         }
 
+        /* 插槽点击效果 */
         .slot::after {
             content: '';
             position: absolute;
@@ -306,7 +560,7 @@
             width: 0;
             height: 0;
             border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.6);
             transform: translate(-50%, -50%);
             transition: width 0.6s, height 0.6s;
         }
@@ -316,20 +570,18 @@
             height: 300px;
         }
 
-        .slot.none {
-            background-color: white;
-        }
-
+        /* 插槽颜色优化 */
         .slot.green {
-            background-color: #2ecc71;
+            background: linear-gradient(135deg, var(--success-color), #218838);
             color: white;
         }
 
         .slot.purple {
-            background-color: #9b59b6;
+            background: linear-gradient(135deg, #8e44ad, #7b2cbf);
             color: white;
         }
 
+        /* 步进器优化 */
         .stepper {
             display: flex;
             align-items: center;
@@ -337,87 +589,145 @@
         }
 
         .stepper button {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             padding: 0;
-            font-size: 20px;
+            font-size: 24px;
+            border-radius: 8px;
+            background-color: var(--border-color);
+            color: var(--text-color);
+        }
+
+        .stepper button:hover {
+            background-color: var(--secondary-color);
+            color: white;
+            transform: scale(1.1);
         }
 
         .stepper input {
-            width: 60px;
+            width: 70px;
             text-align: center;
+            border-radius: 8px;
+            font-size: 18px;
         }
 
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
+        /* 开关组件优化 */
         .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
+            background-color: #dee2e6;
+            transition: var(--transition);
         }
 
         input:checked + .slider {
-            background-color: #2ecc71;
+            background-color: var(--success-color);
         }
 
-        input:focus + .slider {
-            box-shadow: 0 0 1px #2ecc71;
+        .slider:before {
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
         }
 
         input:checked + .slider:before {
             transform: translateX(26px);
         }
 
-        .slider.round {
-            border-radius: 34px;
+        /* 表格样式优化 */
+        .detailed-data-table {
+            box-shadow: var(--shadow-sm);
+            border-radius: 10px;
+            overflow: hidden;
         }
 
-        .slider.round:before {
-            border-radius: 50%;
+        .detailed-data-table thead tr {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
         }
 
-        .rating {
+        .detailed-data-table tbody tr {
+            transition: var(--transition);
+        }
+
+        .detailed-data-table tbody tr:hover {
+            background-color: #e3f2fd;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* 按钮组优化 */
+        .button-group {
             display: flex;
-            gap: 10px;
-            margin: 10px 0;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 25px;
         }
 
-        .rating button {
-            padding: 5px 15px;
-            background-color: #ddd;
-            color: #333;
+        /* 模态框优化 */
+        .modal-content {
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            animation: modalFadeIn 0.3s ease-in-out;
         }
 
-        .rating button.active {
-            background-color: #f39c12;
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* 卡片悬停效果 */
+        .profile-panel {
+            background-color: var(--card-background);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .profile-panel:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .profile-panel .form-group {
+            transition: var(--transition);
+        }
+
+        .profile-panel .form-group:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        /* 队伍成员标签优化 */
+        .team-member {
+            background-color: var(--border-color);
+            color: var(--text-secondary);
+            border-radius: 20px;
+            transition: var(--transition);
+        }
+
+        .team-member:hover {
+            background-color: var(--secondary-color);
             color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* 复制按钮优化 */
+        .copy-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            transition: var(--transition);
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* 状态徽章优化 */
+        .status-badge {
+            border-radius: 16px;
+            transition: var(--transition);
+        }
+
+        .status-badge:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-sm);
         }
 
         /* 表单验证样式 */
@@ -638,7 +948,7 @@
                 font-size: 18px;
             }
             
-            /* 调整槽位大小 */
+            /* 调整大小 */
             .slots-container {
                 grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
                 gap: 8px;
@@ -876,6 +1186,7 @@
                     <select id="matchType">
                         <option value="Q">资格赛 (Q)</option>
                         <option value="M">淘汰赛 (M)</option>
+                        <option value="O">其他（内部Match）</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -886,9 +1197,9 @@
                 <div class="form-group">
                     <label for="motif">Motif</label>
                     <select id="motif">
-                        <option value="GPP">GPP</option>
-                        <option value="PGP">PGP</option>
-                        <option value="PPG">PPG</option>
+                        <option value="GPP">绿紫紫</option>
+                        <option value="PGP">紫绿紫</option>
+                        <option value="PPG">紫紫绿</option>
                     </select>
                 </div>
             </div>
@@ -898,12 +1209,12 @@
             <div class="phase-section">
                 <div class="phase-header" onclick="togglePhase('auto')">
                     <h3>自动阶段</h3>
-                    <span id="autoToggle">▼</span>
+                    <span id="autoToggle"></span>
                 </div>
                 <div class="phase-content" id="autoContent">
                     <div class="form-row">
                         <div class="form-group">
-                            <label>机器人离场</label>
+                            <label>机器人驶离发射线</label>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <label class="switch">
                                     <input type="checkbox" id="robotLeave">
@@ -913,7 +1224,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="autoOverflow">溢出物块</label>
+                            <label for="autoOverflow">溢出GATE的Artifacts数量</label>
                             <div class="stepper">
                                 <button onclick="updateCounter('autoOverflow', -1)">-</button>
                                 <input type="number" id="autoOverflow" value="0" min="0">
@@ -921,7 +1232,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="autoClassified">分类物块</label>
+                            <label for="autoClassified">溢出GATE并滚落至球道的Artifacts</label>
                             <div class="stepper">
                                 <button onclick="updateCounter('autoClassified', -1)">-</button>
                                 <input type="number" id="autoClassified" value="0" min="0">
@@ -930,8 +1241,19 @@
                         </div>
                     </div>
                     <div>
-                        <label>槽位</label>
+                        <label>自动阶段结束时的分类情况</label>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; color: #666;">
+                            <span>左端：GATE</span>
+                            <div>
+                                <span>当前排序得分：</span>
+                                <span id="autoSortingScore" style="font-weight: bold; color: #3498db;">0</span>
+                            </div>
+                            <span>右端：闸门</span>
+                        </div>
                         <div class="slots-container" id="autoSlots"></div>
+                        <div style="display: flex; justify-content: center; margin-top: 5px; font-size: 12px; color: #999;">
+                            <span></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -939,12 +1261,12 @@
             <div class="phase-section">
                 <div class="phase-header" onclick="togglePhase('teleOp')">
                     <h3>手动阶段</h3>
-                    <span id="teleOpToggle">▼</span>
+                    <span id="teleOpToggle"></span>
                 </div>
                 <div class="phase-content" id="teleOpContent">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="teleOpDepot">仓库物块</label>
+                            <label for="teleOpDepot">仓库线得分</label>
                             <div class="stepper">
                                 <button onclick="updateCounter('teleOpDepot', -1)">-</button>
                                 <input type="number" id="teleOpDepot" value="0" min="0">
@@ -952,7 +1274,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="teleOpOverflow">溢出物块</label>
+                            <label for="teleOpOverflow">溢出GATE的Artifacts数量</label>
                             <div class="stepper">
                                 <button onclick="updateCounter('teleOpOverflow', -1)">-</button>
                                 <input type="number" id="teleOpOverflow" value="0" min="0">
@@ -960,7 +1282,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="teleOpClassified">分类物块</label>
+                            <label for="teleOpClassified">溢出GATE并滚落至球道的Artifacts</label>
                             <div class="stepper">
                                 <button onclick="updateCounter('teleOpClassified', -1)">-</button>
                                 <input type="number" id="teleOpClassified" value="0" min="0">
@@ -977,18 +1299,28 @@
                         </div>
                     </div>
                     <div>
-                        <label>槽位</label>
+                        <label>手动阶段结束时的分类情况</label>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; color: #666;">
+                            <span>左端：GATE</span>
+                            <div>
+                                <span>当前排序得分：</span>
+                                <span id="teleOpSortingScore" style="font-weight: bold; color: #3498db;">0</span>
+                            </div>
+                            <span>右端：闸门</span>
+                        </div>
                         <div class="slots-container" id="teleOpSlots"></div>
+                        <div style="display: flex; justify-content: center; margin-top: 5px; font-size: 12px; color: #999;">
+                            <span></span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="phase-section">
-                <div class="phase-header" onclick="togglePhase('general')">
+                <div class="phase-header" style="cursor: default;">
                     <h3>通用信息</h3>
-                    <span id="generalToggle">▼</span>
                 </div>
-                <div class="phase-content" id="generalContent">
+                <div class="phase-content" id="generalContent" style="display: block;">
                     <div class="form-row">
                         <div class="form-group">
                             <label>驾驶表现</label>

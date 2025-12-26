@@ -1452,36 +1452,97 @@ function checkPatternMatch() {
     const selectedPattern = selectedMotif;
     
     // 检查auto阶段的图案
-    const autoPattern = gameData.auto.slots
-        .map(slot => slot.selectedColor === CONSTANTS.COLORS.GREEN ? 'G' : 
-                     slot.selectedColor === CONSTANTS.COLORS.PURPLE ? 'P' : 'N')
-        .join('');
+    const autoSlots = gameData.auto.slots.map(slot => 
+        slot.selectedColor === CONSTANTS.COLORS.GREEN ? 'G' : 
+        slot.selectedColor === CONSTANTS.COLORS.PURPLE ? 'P' : 'N'
+    );
     
     // 检查teleOp阶段的图案
-    const teleOpPattern = gameData.teleOp.slots
-        .map(slot => slot.selectedColor === CONSTANTS.COLORS.GREEN ? 'G' : 
-                     slot.selectedColor === CONSTANTS.COLORS.PURPLE ? 'P' : 'N')
-        .join('');
+    const teleOpSlots = gameData.teleOp.slots.map(slot => 
+        slot.selectedColor === CONSTANTS.COLORS.GREEN ? 'G' : 
+        slot.selectedColor === CONSTANTS.COLORS.PURPLE ? 'P' : 'N'
+    );
     
-    // 检查是否完全匹配
-    const autoMatch = autoPattern === selectedPattern;
-    const teleOpMatch = teleOpPattern === selectedPattern;
+    // 计算auto阶段匹配的artifact数量（从右端开始，每3个为一组）
+    let autoMatchCount = 0;
+    const totalSlots = autoSlots.length;
+    for (let groupIndex = 0; groupIndex < 3; groupIndex++) {
+        for (let positionInGroup = 0; positionInGroup < 3; positionInGroup++) {
+            // 计算当前槽位的索引：从右端开始，每3个为一组
+            const slotIndex = totalSlots - 1 - (groupIndex * 3 + positionInGroup);
+            if (slotIndex >= 0) {
+                const slotColor = autoSlots[slotIndex];
+                const expectedColor = selectedPattern[positionInGroup];
+                if (slotColor === expectedColor) {
+                    autoMatchCount++;
+                }
+            }
+        }
+    }
+    
+    // 计算teleOp阶段匹配的artifact数量（从右端开始，每3个为一组）
+    let teleOpMatchCount = 0;
+    for (let groupIndex = 0; groupIndex < 3; groupIndex++) {
+        for (let positionInGroup = 0; positionInGroup < 3; positionInGroup++) {
+            // 计算当前槽位的索引：从右端开始，每3个为一组
+            const slotIndex = totalSlots - 1 - (groupIndex * 3 + positionInGroup);
+            if (slotIndex >= 0) {
+                const slotColor = teleOpSlots[slotIndex];
+                const expectedColor = selectedPattern[positionInGroup];
+                if (slotColor === expectedColor) {
+                    teleOpMatchCount++;
+                }
+            }
+        }
+    }
     
     // 更新槽位的正确标记
     gameData.auto.slots.forEach((slot, index) => {
-        slot.isCorrect = selectedPattern[index] === autoPattern[index] && selectedPattern[index] !== 'N';
+        // 计算当前槽位属于哪个组和位置
+        const groupIndex = Math.floor((totalSlots - 1 - index) / 3);
+        const positionInGroup = (totalSlots - 1 - index) % 3;
+        const expectedColor = selectedPattern[positionInGroup];
+        const slotColor = slot.selectedColor === CONSTANTS.COLORS.GREEN ? 'G' : 
+                         slot.selectedColor === CONSTANTS.COLORS.PURPLE ? 'P' : 'N';
+        slot.isCorrect = slotColor === expectedColor;
     });
     
     gameData.teleOp.slots.forEach((slot, index) => {
-        slot.isCorrect = selectedPattern[index] === teleOpPattern[index] && selectedPattern[index] !== 'N';
+        // 计算当前槽位属于哪个组和位置
+        const groupIndex = Math.floor((totalSlots - 1 - index) / 3);
+        const positionInGroup = (totalSlots - 1 - index) % 3;
+        const expectedColor = selectedPattern[positionInGroup];
+        const slotColor = slot.selectedColor === CONSTANTS.COLORS.GREEN ? 'G' : 
+                         slot.selectedColor === CONSTANTS.COLORS.PURPLE ? 'P' : 'N';
+        slot.isCorrect = slotColor === expectedColor;
     });
     
     // 更新UI
     updateSlotsUI('auto');
     updateSlotsUI('teleOp');
     
+    // 更新排序得分显示
+    const autoSortingScore = autoMatchCount * CONSTANTS.PATTERN_MATCH;
+    const teleOpSortingScore = teleOpMatchCount * CONSTANTS.PATTERN_MATCH;
+    
+    // 更新自动排序分数并添加动画
+    const autoSortingScoreElement = document.getElementById('autoSortingScore');
+    if (autoSortingScoreElement) {
+        autoSortingScoreElement.textContent = autoSortingScore;
+        autoSortingScoreElement.classList.add('updating');
+        setTimeout(() => autoSortingScoreElement.classList.remove('updating'), 600);
+    }
+    
+    // 更新手动排序分数并添加动画
+    const teleOpSortingScoreElement = document.getElementById('teleOpSortingScore');
+    if (teleOpSortingScoreElement) {
+        teleOpSortingScoreElement.textContent = teleOpSortingScore;
+        teleOpSortingScoreElement.classList.add('updating');
+        setTimeout(() => teleOpSortingScoreElement.classList.remove('updating'), 600);
+    }
+    
     // 返回匹配结果
-    return { autoMatch, teleOpMatch };
+    return { autoMatchCount, teleOpMatchCount };
 }
 
 // 更新槽位UI
@@ -1516,18 +1577,16 @@ function calculateScore() {
     
     // 检查图案匹配
     const patternMatch = checkPatternMatch();
-    if (patternMatch.autoMatch) {
-        autoScore += CONSTANTS.PATTERN_MATCH;
-    }
+    // 每匹配一组 +2 分
+    autoScore += patternMatch.autoMatchCount * CONSTANTS.PATTERN_MATCH;
     
     // TeleOp阶段分数
     teleOpScore += gameData.teleOp.depotArtifacts * CONSTANTS.DEPOT_ARTIFACT;
     teleOpScore += gameData.teleOp.overflowArtifacts * CONSTANTS.OVERFLOW_ARTIFACT;
     teleOpScore += gameData.teleOp.classifiedArtifacts * CONSTANTS.CLASSIFIED_ARTIFACT;
     
-    if (patternMatch.teleOpMatch) {
-        teleOpScore += CONSTANTS.PATTERN_MATCH;
-    }
+    // 每匹配一组 +2 分
+    teleOpScore += patternMatch.teleOpMatchCount * CONSTANTS.PATTERN_MATCH;
     
     // Base返回分数
     if (gameData.teleOp.baseReturnState === 'Partial') {
@@ -1548,9 +1607,24 @@ function calculateScore() {
 // 更新实时分数
 function updateLiveScore() {
     const score = calculateScore();
-    document.getElementById('autoScore').textContent = score.autoScore;
-    document.getElementById('teleOpScore').textContent = score.teleOpScore;
-    document.getElementById('totalScore').textContent = score.totalScore;
+    
+    // 更新自动得分并添加动画
+    const autoScoreElement = document.getElementById('autoScore');
+    autoScoreElement.textContent = score.autoScore;
+    autoScoreElement.classList.add('updating');
+    setTimeout(() => autoScoreElement.classList.remove('updating'), 600);
+    
+    // 更新手动得分并添加动画
+    const teleOpScoreElement = document.getElementById('teleOpScore');
+    teleOpScoreElement.textContent = score.teleOpScore;
+    teleOpScoreElement.classList.add('updating');
+    setTimeout(() => teleOpScoreElement.classList.remove('updating'), 600);
+    
+    // 更新总分并添加动画
+    const totalScoreElement = document.getElementById('totalScore');
+    totalScoreElement.textContent = score.totalScore;
+    totalScoreElement.classList.add('updating');
+    setTimeout(() => totalScoreElement.classList.remove('updating'), 600);
 }
 
 // 防抖函数
