@@ -1918,49 +1918,7 @@ function importData(file) {
     reader.onload = function(e) {
         try {
             const data = JSON.parse(e.target.result);
-            
-            // 恢复基本信息
-            document.getElementById('teamNumber').value = data.teamNumber || '';
-            document.getElementById('matchName').value = data.matchName || '';
-            document.getElementById('matchType').value = data.matchType || 'Q';
-            document.getElementById('matchNumber').value = data.matchNumber || '1';
-            
-            // 恢复游戏数据
-            if (data.gameData) {
-                gameData = data.gameData;
-            }
-            
-            // 恢复motif
-            if (data.selectedMotif) {
-                selectedMotif = data.selectedMotif;
-                document.getElementById('motif').value = selectedMotif;
-            }
-            
-            // 重新初始化UI
-            initSlots('auto');
-            initSlots('teleOp');
-            
-            // 恢复UI状态
-            document.getElementById('robotLeave').checked = gameData.auto.robotLeave;
-            document.getElementById('autoOverflow').value = gameData.auto.overflowArtifacts;
-            document.getElementById('autoClassified').value = gameData.auto.classifiedArtifacts;
-            document.getElementById('teleOpDepot').value = gameData.teleOp.depotArtifacts;
-            document.getElementById('teleOpOverflow').value = gameData.teleOp.overflowArtifacts;
-            document.getElementById('teleOpClassified').value = gameData.teleOp.classifiedArtifacts;
-            document.getElementById('threeInThree').value = gameData.general.threeInThree || 0;
-            document.getElementById('threeInTwo').value = gameData.general.threeInTwo || 0;
-            document.getElementById('threeInOne').value = gameData.general.threeInOne || 0;
-            document.getElementById('baseReturn').value = gameData.teleOp.baseReturnState;
-            document.getElementById('diedOnField').checked = gameData.general.diedOnField;
-            document.getElementById('notes').value = gameData.general.notes;
-            
-            // 恢复评分
-            setRating('driverRating', gameData.general.driverPerformance);
-            setRating('defenseRating', gameData.general.defenseRating);
-            
-            // 更新实时分数
-            updateLiveScore();
-            
+            loadDataToForm(data);
             alert('数据导入成功！');
         } catch (error) {
             console.error('数据导入失败:', error);
@@ -1968,6 +1926,119 @@ function importData(file) {
         }
     };
     reader.readAsText(file);
+}
+
+// 加载数据到表单的通用函数
+function loadDataToForm(data) {
+    // 恢复基本信息
+    document.getElementById('teamNumber').value = data.teamNumber || '';
+    document.getElementById('matchName').value = data.matchName || '';
+    document.getElementById('matchType').value = data.matchType || 'Q';
+    document.getElementById('matchNumber').value = data.matchNumber || '1';
+    
+    // 恢复游戏数据
+    if (data.gameData) {
+        gameData = data.gameData;
+    }
+    
+    // 恢复motif
+    if (data.selectedMotif) {
+        selectedMotif = data.selectedMotif;
+        document.getElementById('motif').value = selectedMotif;
+    }
+    
+    // 重新初始化UI
+    initSlots('auto');
+    initSlots('teleOp');
+    
+    // 恢复UI状态
+    document.getElementById('robotLeave').checked = gameData.auto.robotLeave;
+    document.getElementById('autoOverflow').value = gameData.auto.overflowArtifacts;
+    document.getElementById('autoClassified').value = gameData.auto.classifiedArtifacts;
+    document.getElementById('teleOpDepot').value = gameData.teleOp.depotArtifacts;
+    document.getElementById('teleOpOverflow').value = gameData.teleOp.overflowArtifacts;
+    document.getElementById('teleOpClassified').value = gameData.teleOp.classifiedArtifacts;
+    document.getElementById('threeInThree').value = gameData.general.threeInThree || 0;
+    document.getElementById('threeInTwo').value = gameData.general.threeInTwo || 0;
+    document.getElementById('threeInOne').value = gameData.general.threeInOne || 0;
+    document.getElementById('baseReturn').value = gameData.teleOp.baseReturnState;
+    document.getElementById('diedOnField').checked = gameData.general.diedOnField;
+    document.getElementById('notes').value = gameData.general.notes;
+    
+    // 恢复评分
+    setRating('driverRating', gameData.general.driverPerformance);
+    setRating('defenseRating', gameData.general.defenseRating);
+    
+    // 更新实时分数
+    updateLiveScore();
+}
+
+// 从云端加载数据
+async function loadFromCloud() {
+    try {
+        showLoading('加载云端数据中...');
+        
+        // 从云端获取所有比赛数据
+        const response = await fetch(`${getApiUrl()}/api/scouting-data`);
+        
+        if (!response.ok) {
+            throw new Error('获取云端数据失败');
+        }
+        
+        const result = await response.json();
+        const allData = result.data || [];
+        
+        hideLoading();
+        
+        if (allData.length === 0) {
+            alert('云端没有可用的数据');
+            return;
+        }
+        
+        // 创建选择数据的模态框
+        let dataListHtml = '<select id="cloudDataSelect" style="width: 100%; padding: 10px; border-radius: 4px; border: 2px solid #ddd; font-size: 16px;">';
+        allData.forEach((item, index) => {
+            const displayText = `${item.teamNumber} - ${item.matchName} - ${item.matchType}${item.matchNumber} - 总分: ${item.score}`;
+            dataListHtml += `<option value="${index}">${displayText}</option>`;
+        });
+        dataListHtml += '</select>';
+        
+        const modal = createModal('选择要加载的数据', dataListHtml);
+        
+        // 添加加载按钮
+        const loadBtn = document.createElement('button');
+        loadBtn.textContent = '加载数据';
+        loadBtn.className = 'btn-primary';
+        loadBtn.onclick = () => {
+            const selectElement = document.getElementById('cloudDataSelect');
+            const selectedIndex = parseInt(selectElement.value);
+            const selectedData = allData[selectedIndex];
+            
+            if (selectedData) {
+                // 加载选中的数据到表单
+                loadDataToForm(selectedData);
+                closeModal(modal);
+                alert('数据加载成功！');
+            }
+        };
+        
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = '取消';
+        cancelBtn.className = 'btn-secondary';
+        cancelBtn.onclick = () => closeModal(modal);
+        
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.className = 'button-group';
+        buttonsContainer.appendChild(loadBtn);
+        buttonsContainer.appendChild(cancelBtn);
+        
+        modal.querySelector('.modal-content').appendChild(buttonsContainer);
+        
+    } catch (error) {
+        console.error('加载云端数据失败:', error);
+        hideLoading();
+        alert('加载云端数据失败，请检查网络连接或稍后重试');
+    }
 }
 
 // 显示用户数据
