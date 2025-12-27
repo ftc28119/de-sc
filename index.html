@@ -1240,8 +1240,8 @@
 <body style="display: block;">
     <div class="container">
         <header>
-            <h1>FTC Scout - 网页版</h1>
-            <p>比赛数据录入系统</p>
+            <h1>ScoutingApp for DECODE</h1>
+            <p>Presented by Team 28119</p>
             <div id="authStatus" style="margin-top: 10px;">
                 <button id="loginBtn" class="btn-secondary" onclick="showLoginModal()">登录</button>
                 <button id="registerBtn" class="btn-primary" onclick="showRegisterModal()">注册</button>
@@ -1549,7 +1549,34 @@
                 <button class="btn-secondary" onclick="showMyProfile()">我的</button>
             </div>
         </div>
+
+        <!-- 底部图片展示 -->
+        <div class="form-section">
+            <div class="footer-images">
+                <img src="assets/28119&30222.jpg" alt="Team 28119 & 30222" class="footer-image">
+                <img src="assets/FTC.png" alt="FTC Logo" class="footer-image">
+                <img src="assets/TEMKEN.png" alt="TEMKEN" class="footer-image">
+            </div>
+        </div>
     </div>
+
+    <style>
+        /* 底部图片样式 */
+        .footer-images {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding: 10px 0;
+        }
+
+        .footer-image {
+            max-width: 200px;
+            max-height: 150px;
+            object-fit: contain;
+        }
+    </style>
 
     <script>        
         // 确保页面内容始终可见
