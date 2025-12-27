@@ -562,26 +562,44 @@ function createModal(title, content) {
     modalContent.className = 'modal-content';
     modalContent.style.cssText = `
         background-color: white;
-        padding: 20px;
         border-radius: 8px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         width: 90%;
         max-width: 500px;
         max-height: 80vh;
-        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
         position: relative;
         z-index: 1002;
+    `;
+    
+    const modalHeader = document.createElement('div');
+    modalHeader.style.cssText = `
+        padding: 20px 20px 0;
     `;
     
     const modalTitle = document.createElement('h3');
     modalTitle.textContent = title;
     modalTitle.style.marginBottom = '20px';
+    modalHeader.appendChild(modalTitle);
     
     const contentDiv = document.createElement('div');
     contentDiv.innerHTML = content;
+    contentDiv.style.cssText = `
+        padding: 0 20px;
+        overflow-y: auto;
+        flex: 1;
+    `;
     
-    modalContent.appendChild(modalTitle);
+    const modalFooter = document.createElement('div');
+    modalFooter.style.cssText = `
+        padding: 20px;
+        border-top: 1px solid #e9ecef;
+    `;
+    
+    modalContent.appendChild(modalHeader);
     modalContent.appendChild(contentDiv);
+    modalContent.appendChild(modalFooter);
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
     
@@ -703,7 +721,7 @@ function showLoginModal() {
     buttonsContainer.appendChild(loginBtn);
     buttonsContainer.appendChild(cancelBtn);
     
-    modal.querySelector('.modal-content').appendChild(buttonsContainer);
+    modal.querySelector('.modal-content .modal-footer').appendChild(buttonsContainer);
     
     // 添加输入事件监听器，当用户开始输入时隐藏错误提示
     document.getElementById('loginUsername').addEventListener('input', () => {
@@ -756,7 +774,7 @@ function showRegisterModal() {
     buttonsContainer.appendChild(registerBtn);
     buttonsContainer.appendChild(cancelBtn);
     
-    modal.querySelector('.modal-content').appendChild(buttonsContainer);
+    modal.querySelector('.modal-content .modal-footer').appendChild(buttonsContainer);
     
     // 添加输入事件监听器，当用户开始输入时隐藏错误提示
     document.getElementById('registerUsername').addEventListener('input', () => {
@@ -910,7 +928,7 @@ async function showMyTeam() {
     buttonsContainer.className = 'button-group';
     buttonsContainer.appendChild(closeBtn);
     
-    modal.querySelector('.modal-content').appendChild(buttonsContainer);
+    modal.querySelector('.modal-content .modal-footer').appendChild(buttonsContainer);
 }
 
 // 显示我的个人信息
@@ -1012,7 +1030,7 @@ function showMyProfile() {
         buttonsContainer.appendChild(changePasswordBtn);
         buttonsContainer.appendChild(deleteBtn);
         
-        modal.querySelector('.modal-content').appendChild(buttonsContainer);
+        modal.querySelector('.modal-content .modal-footer').appendChild(buttonsContainer);
     } catch (error) {
         console.error('显示个人信息失败:', error);
         alert('显示个人信息失败，请稍后重试');
@@ -1081,7 +1099,7 @@ function showDeleteAccountModal(profileModal) {
     buttonsContainer.appendChild(confirmBtn);
     buttonsContainer.appendChild(cancelBtn);
     
-    modal.querySelector('.modal-content').appendChild(buttonsContainer);
+    modal.querySelector('.modal-content .modal-footer').appendChild(buttonsContainer);
 }
 
 // 显示更改密码模态框
@@ -1160,7 +1178,7 @@ function showChangePasswordModal(profileModal) {
     buttonsContainer.appendChild(changePasswordBtn);
     buttonsContainer.appendChild(cancelBtn);
     
-    modal.querySelector('.modal-content').appendChild(buttonsContainer);
+    modal.querySelector('.modal-content .modal-footer').appendChild(buttonsContainer);
 }
 
 // 更新认证UI
@@ -2467,7 +2485,7 @@ function showDetailedData(item) {
     buttonsContainer.appendChild(loadToPageBtn);
     buttonsContainer.appendChild(closeBtn);
     
-    modal.querySelector('.modal-content').appendChild(buttonsContainer);
+    modal.querySelector('.modal-content .modal-footer').appendChild(buttonsContainer);
 }
 
 
