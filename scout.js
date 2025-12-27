@@ -2027,38 +2027,49 @@ function loadDataToForm(data) {
 // 从云端加载数据
 async function loadFromCloud() {
     try {
+        console.log('开始执行loadFromCloud函数');
         showLoading('加载云端数据中...');
         
-        // 从云端获取所有比赛数据
-        const apiUrl = getApiUrl();
+        // 直接使用固定的本地地址进行测试
+        const apiUrl = 'http://localhost:8080';
         console.log('使用的API地址:', apiUrl);
+        
+        // 从云端获取所有比赛数据
         const response = await fetch(`${apiUrl}/api/scouting-data`);
         
         console.log('API响应状态:', response.status);
+        console.log('API响应头:', response.headers);
         
         if (!response.ok) {
-            throw new Error(`获取云端数据失败，状态码: ${response.status}`);
+            const errorText = await response.text();
+            console.error('API响应错误:', errorText);
+            throw new Error(`获取云端数据失败，状态码: ${response.status}, 错误信息: ${errorText}`);
         }
         
         const result = await response.json();
-        console.log('API响应结果:', result);
+        console.log('API响应结果:', JSON.stringify(result, null, 2));
+        
         const allData = result.data || [];
+        console.log('所有数据:', JSON.stringify(allData, null, 2));
         
         hideLoading();
         
         if (allData.length === 0) {
             showError('云端没有可用的数据');
+            console.log('云端没有可用的数据');
             return;
         }
         
         // 创建选择数据的模态框
         let dataListHtml = '<select id="cloudDataSelect" style="width: 100%; padding: 10px; border-radius: 4px; border: 2px solid #ddd; font-size: 16px; margin-bottom: 20px;">';
         allData.forEach((item, index) => {
-            const displayText = `${item.teamNumber} - ${item.matchName} - ${item.matchType}${item.matchNumber} - 总分: ${item.score}`;
+            console.log('处理数据项:', index, item);
+            const displayText = `${item.teamNumber || '未知'} - ${item.matchName || '未知'} - ${item.matchType || 'Q'}${item.matchNumber || '0'} - 总分: ${item.score || 0}`;
             dataListHtml += `<option value="${index}">${displayText}</option>`;
         });
         dataListHtml += '</select>';
         
+        console.log('创建模态框，HTML内容:', dataListHtml);
         const modal = createModal('选择要加载的数据', dataListHtml);
         
         // 添加加载按钮
@@ -2066,22 +2077,111 @@ async function loadFromCloud() {
         loadBtn.textContent = '加载数据';
         loadBtn.className = 'btn-primary';
         loadBtn.onclick = () => {
+            console.log('加载按钮被点击');
             const selectElement = document.getElementById('cloudDataSelect');
+            if (!selectElement) {
+                console.error('找不到cloudDataSelect元素');
+                return;
+            }
+            console.log('选择元素:', selectElement);
             const selectedIndex = parseInt(selectElement.value);
+            console.log('选择的索引:', selectedIndex);
             const selectedData = allData[selectedIndex];
+            console.log('选择的数据:', JSON.stringify(selectedData, null, 2));
             
             if (selectedData) {
-                // 加载选中的数据到表单
-                loadDataToForm(selectedData);
+                // 直接手动加载数据到表单，不依赖loadDataToForm函数
+                console.log('开始手动加载数据到表单');
+                
+                // 恢复基本信息
+                document.getElementById('teamNumber').value = selectedData.teamNumber || '';
+                document.getElementById('matchName').value = selectedData.matchName || '';
+                document.getElementById('matchType').value = selectedData.matchType || 'Q';
+                document.getElementById('matchNumber').value = selectedData.matchNumber || '1';
+                
+                // 恢复motif
+                if (selectedData.selectedMotif) {
+                    selectedMotif = selectedData.selectedMotif;
+                    document.getElementById('motif').value = selectedMotif;
+                }
+                
+                // 恢复游戏数据
+                if (selectedData.gameData) {
+                    gameData = selectedData.gameData;
+                    
+                    // 确保数据结构完整
+                    gameData.auto = gameData.auto || {
+                        overflowArtifacts: 0,
+                        classifiedArtifacts: 0,
+                        robotLeave: false,
+                        slots: Array(9).fill(null).map((_, index) => ({
+                            id: index + 1,
+                            selectedColor: "None",
+                            isCorrect: false
+                        }))
+                    };
+                    
+                    gameData.teleOp = gameData.teleOp || {
+                        depotArtifacts: 0,
+                        overflowArtifacts: 0,
+                        classifiedArtifacts: 0,
+                        baseReturnState: "None",
+                        slots: Array(9).fill(null).map((_, index) => ({
+                            id: index + 1,
+                            selectedColor: "None",
+                            isCorrect: false
+                        }))
+                    };
+                    
+                    gameData.general = gameData.general || {
+                        driverPerformance: CONSTANTS.DEFAULT_DRIVER_RATING,
+                        defenseRating: CONSTANTS.DEFAULT_DEFENSE_RATING,
+                        diedOnField: false,
+                        threeInThree: 0,
+                        threeInTwo: 0,
+                        threeInOne: 0,
+                        notes: ""
+                    };
+                    
+                    // 恢复UI状态
+                    document.getElementById('robotLeave').checked = gameData.auto.robotLeave;
+                    document.getElementById('autoOverflow').value = gameData.auto.overflowArtifacts;
+                    document.getElementById('autoClassified').value = gameData.auto.classifiedArtifacts;
+                    document.getElementById('teleOpDepot').value = gameData.teleOp.depotArtifacts;
+                    document.getElementById('teleOpOverflow').value = gameData.teleOp.overflowArtifacts;
+                    document.getElementById('teleOpClassified').value = gameData.teleOp.classifiedArtifacts;
+                    document.getElementById('threeInThree').value = gameData.general.threeInThree || 0;
+                    document.getElementById('threeInTwo').value = gameData.general.threeInTwo || 0;
+                    document.getElementById('threeInOne').value = gameData.general.threeInOne || 0;
+                    document.getElementById('baseReturn').value = gameData.teleOp.baseReturnState;
+                    document.getElementById('diedOnField').checked = gameData.general.diedOnField;
+                    document.getElementById('notes').value = gameData.general.notes;
+                    
+                    // 恢复评分
+                    setRating('driverRating', gameData.general.driverPerformance);
+                    setRating('defenseRating', gameData.general.defenseRating);
+                    
+                    // 重新初始化UI
+                    initSlots('auto');
+                    initSlots('teleOp');
+                    
+                    // 更新实时分数
+                    updateLiveScore();
+                }
+                
                 closeModal(modal);
                 showSuccess('数据加载成功！');
+                console.log('数据加载成功');
             }
         };
         
         const cancelBtn = document.createElement('button');
         cancelBtn.textContent = '取消';
         cancelBtn.className = 'btn-secondary';
-        cancelBtn.onclick = () => closeModal(modal);
+        cancelBtn.onclick = () => {
+            console.log('取消按钮被点击');
+            closeModal(modal);
+        };
         
         const buttonsContainer = document.createElement('div');
         buttonsContainer.className = 'button-group';
@@ -2089,9 +2189,11 @@ async function loadFromCloud() {
         buttonsContainer.appendChild(cancelBtn);
         
         modal.querySelector('.modal-content').appendChild(buttonsContainer);
+        console.log('模态框创建完成');
         
     } catch (error) {
         console.error('加载云端数据失败:', error);
+        console.error('错误堆栈:', error.stack);
         hideLoading();
         showError(`加载云端数据失败: ${error.message}`);
     }
