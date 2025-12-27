@@ -567,6 +567,8 @@ function createModal(title, content) {
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         width: 90%;
         max-width: 500px;
+        max-height: 80vh;
+        overflow-y: auto;
         position: relative;
         z-index: 1002;
     `;
