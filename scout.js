@@ -108,6 +108,12 @@ let gameData = {
         threeInThree: 0,
         threeInTwo: 0,
         threeInOne: 0,
+        threeInZero: 0,
+        twoInTwo: 0,
+        twoInOne: 0,
+        twoInZero: 0,
+        oneInOne: 0,
+        oneInZero: 0,
         notes: ""
     }
 };
@@ -1233,6 +1239,12 @@ function loadData() {
         document.getElementById('threeInThree').value = gameData.general.threeInThree;
         document.getElementById('threeInTwo').value = gameData.general.threeInTwo;
         document.getElementById('threeInOne').value = gameData.general.threeInOne;
+        document.getElementById('threeInZero').value = gameData.general.threeInZero || 0;
+        document.getElementById('twoInTwo').value = gameData.general.twoInTwo || 0;
+        document.getElementById('twoInOne').value = gameData.general.twoInOne || 0;
+        document.getElementById('twoInZero').value = gameData.general.twoInZero || 0;
+        document.getElementById('oneInOne').value = gameData.general.oneInOne || 0;
+        document.getElementById('oneInZero').value = gameData.general.oneInZero || 0;
         document.getElementById('notes').value = gameData.general.notes;
         document.getElementById('driverRating').value = gameData.general.driverPerformance;
         document.getElementById('defenseRating').value = gameData.general.defenseRating;
@@ -1285,9 +1297,16 @@ document.addEventListener('DOMContentLoaded', function() {
         loadData();
         console.log('数据加载完成');
         
+        // 初始化所有统计字段
         document.getElementById('threeInThree').value = document.getElementById('threeInThree').value || 0;
         document.getElementById('threeInTwo').value = document.getElementById('threeInTwo').value || 0;
         document.getElementById('threeInOne').value = document.getElementById('threeInOne').value || 0;
+        document.getElementById('threeInZero').value = document.getElementById('threeInZero').value || 0;
+        document.getElementById('twoInTwo').value = document.getElementById('twoInTwo').value || 0;
+        document.getElementById('twoInOne').value = document.getElementById('twoInOne').value || 0;
+        document.getElementById('twoInZero').value = document.getElementById('twoInZero').value || 0;
+        document.getElementById('oneInOne').value = document.getElementById('oneInOne').value || 0;
+        document.getElementById('oneInZero').value = document.getElementById('oneInZero').value || 0;
         
         console.log('初始化auto槽位...');
         initSlots('auto');
@@ -1366,7 +1385,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // 自动更新计数器输入框
-        ['autoOverflow', 'autoClassified', 'teleOpDepot', 'teleOpOverflow', 'teleOpClassified', 'threeInThree', 'threeInTwo', 'threeInOne'].forEach(id => {
+        ['autoOverflow', 'autoClassified', 'teleOpDepot', 'teleOpOverflow', 'teleOpClassified', 
+         'threeInThree', 'threeInTwo', 'threeInOne', 'threeInZero', 
+         'twoInTwo', 'twoInOne', 'twoInZero', 
+         'oneInOne', 'oneInZero'].forEach(id => {
             document.getElementById(id).addEventListener('input', function() {
                 let value = parseInt(this.value) || 0;
                 if (value < 0) value = 0;
@@ -1389,6 +1411,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     gameData.general.threeInTwo = value;
                 } else if (id === 'threeInOne') {
                     gameData.general.threeInOne = value;
+                } else if (id === 'threeInZero') {
+                    gameData.general.threeInZero = value;
+                } else if (id === 'twoInTwo') {
+                    gameData.general.twoInTwo = value;
+                } else if (id === 'twoInOne') {
+                    gameData.general.twoInOne = value;
+                } else if (id === 'twoInZero') {
+                    gameData.general.twoInZero = value;
+                } else if (id === 'oneInOne') {
+                    gameData.general.oneInOne = value;
+                } else if (id === 'oneInZero') {
+                    gameData.general.oneInZero = value;
                 }
                 
                 debouncedUpdateLiveScore();
@@ -1729,6 +1763,18 @@ function updateCounter(fieldId, delta) {
         gameData.general.threeInTwo = newValue;
     } else if (fieldId === 'threeInOne') {
         gameData.general.threeInOne = newValue;
+    } else if (fieldId === 'threeInZero') {
+        gameData.general.threeInZero = newValue;
+    } else if (fieldId === 'twoInTwo') {
+        gameData.general.twoInTwo = newValue;
+    } else if (fieldId === 'twoInOne') {
+        gameData.general.twoInOne = newValue;
+    } else if (fieldId === 'twoInZero') {
+        gameData.general.twoInZero = newValue;
+    } else if (fieldId === 'oneInOne') {
+        gameData.general.oneInOne = newValue;
+    } else if (fieldId === 'oneInZero') {
+        gameData.general.oneInZero = newValue;
     }
     
     debouncedUpdateLiveScore();
@@ -1844,6 +1890,12 @@ function resetData() {
             threeInThree: 0,
             threeInTwo: 0,
             threeInOne: 0,
+            threeInZero: 0,
+            twoInTwo: 0,
+            twoInOne: 0,
+            twoInZero: 0,
+            oneInOne: 0,
+            oneInZero: 0,
             notes: ""
         }
     };
@@ -1863,12 +1915,20 @@ function resetData() {
     document.getElementById('teleOpDepot').value = 0;
     document.getElementById('teleOpOverflow').value = 0;
     document.getElementById('teleOpClassified').value = 0;
-    document.getElementById('threeInThree').value = 0;
-    document.getElementById('threeInTwo').value = 0;
-    document.getElementById('threeInOne').value = 0;
     document.getElementById('baseReturn').value = 'None';
     document.getElementById('diedOnField').checked = false;
     document.getElementById('notes').value = '';
+    
+    // 重置所有统计字段
+    document.getElementById('threeInThree').value = 0;
+    document.getElementById('threeInTwo').value = 0;
+    document.getElementById('threeInOne').value = 0;
+    document.getElementById('threeInZero').value = 0;
+    document.getElementById('twoInTwo').value = 0;
+    document.getElementById('twoInOne').value = 0;
+    document.getElementById('twoInZero').value = 0;
+    document.getElementById('oneInOne').value = 0;
+    document.getElementById('oneInZero').value = 0;
     
     // 重置评分
     setRating('driverRating', CONSTANTS.DEFAULT_DRIVER_RATING);
@@ -1944,12 +2004,20 @@ function importData(file) {
             document.getElementById('teleOpDepot').value = gameData.teleOp.depotArtifacts;
             document.getElementById('teleOpOverflow').value = gameData.teleOp.overflowArtifacts;
             document.getElementById('teleOpClassified').value = gameData.teleOp.classifiedArtifacts;
-            document.getElementById('threeInThree').value = gameData.general.threeInThree || 0;
-            document.getElementById('threeInTwo').value = gameData.general.threeInTwo || 0;
-            document.getElementById('threeInOne').value = gameData.general.threeInOne || 0;
             document.getElementById('baseReturn').value = gameData.teleOp.baseReturnState;
             document.getElementById('diedOnField').checked = gameData.general.diedOnField;
             document.getElementById('notes').value = gameData.general.notes;
+            
+            // 恢复所有统计字段
+            document.getElementById('threeInThree').value = gameData.general.threeInThree || 0;
+            document.getElementById('threeInTwo').value = gameData.general.threeInTwo || 0;
+            document.getElementById('threeInOne').value = gameData.general.threeInOne || 0;
+            document.getElementById('threeInZero').value = gameData.general.threeInZero || 0;
+            document.getElementById('twoInTwo').value = gameData.general.twoInTwo || 0;
+            document.getElementById('twoInOne').value = gameData.general.twoInOne || 0;
+            document.getElementById('twoInZero').value = gameData.general.twoInZero || 0;
+            document.getElementById('oneInOne').value = gameData.general.oneInOne || 0;
+            document.getElementById('oneInZero').value = gameData.general.oneInZero || 0;
             
             // 恢复评分
             setRating('driverRating', gameData.general.driverPerformance);
@@ -2242,10 +2310,16 @@ function loadDataToPage(data) {
         document.getElementById('diedOnField').checked = gameData.general.diedOnField || false;
         document.getElementById('notes').value = gameData.general.notes || '';
         
-        // 恢复三个新的统计字段
+        // 恢复所有统计字段
         document.getElementById('threeInThree').value = gameData.general.threeInThree || 0;
         document.getElementById('threeInTwo').value = gameData.general.threeInTwo || 0;
         document.getElementById('threeInOne').value = gameData.general.threeInOne || 0;
+        document.getElementById('threeInZero').value = gameData.general.threeInZero || 0;
+        document.getElementById('twoInTwo').value = gameData.general.twoInTwo || 0;
+        document.getElementById('twoInOne').value = gameData.general.twoInOne || 0;
+        document.getElementById('twoInZero').value = gameData.general.twoInZero || 0;
+        document.getElementById('oneInOne').value = gameData.general.oneInOne || 0;
+        document.getElementById('oneInZero').value = gameData.general.oneInZero || 0;
         
         // 恢复评分
         setRating('driverRating', gameData.general.driverPerformance || CONSTANTS.DEFAULT_DRIVER_RATING);
@@ -2314,7 +2388,7 @@ function showDetailedData(item) {
                 
                 <!-- 一般数据 -->
                 <tr>
-                    <td rowspan="6">一般数据</td>
+                    <td rowspan="12">一般数据</td>
                     <td>驾驶员评分</td>
                     <td>${item.gameData.general.driverPerformance}</td>
                 </tr>
@@ -2337,6 +2411,30 @@ function showDetailedData(item) {
                 <tr>
                     <td>投3中1次数</td>
                     <td>${item.gameData.general.threeInOne || 0}</td>
+                </tr>
+                <tr>
+                    <td>投3中0次数</td>
+                    <td>${item.gameData.general.threeInZero || 0}</td>
+                </tr>
+                <tr>
+                    <td>投2中2次数</td>
+                    <td>${item.gameData.general.twoInTwo || 0}</td>
+                </tr>
+                <tr>
+                    <td>投2中1次数</td>
+                    <td>${item.gameData.general.twoInOne || 0}</td>
+                </tr>
+                <tr>
+                    <td>投2中0次数</td>
+                    <td>${item.gameData.general.twoInZero || 0}</td>
+                </tr>
+                <tr>
+                    <td>投1中1次数</td>
+                    <td>${item.gameData.general.oneInOne || 0}</td>
+                </tr>
+                <tr>
+                    <td>投1中0次数</td>
+                    <td>${item.gameData.general.oneInZero || 0}</td>
                 </tr>
             </tbody>
         </table>
