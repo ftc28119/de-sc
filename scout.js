@@ -1,8 +1,3 @@
-// 防止直接访问JS文件
-if (window.location.pathname.endsWith('.js')) {
-    window.location.href = '404.html';
-}
-
 // 常量定义
 const CONSTANTS = {
     // 颜色常量
