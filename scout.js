@@ -614,6 +614,9 @@ function createModal(title, content) {
         padding: 15px 20px;
         border-top: 1px solid #e9ecef;
         flex-shrink: 0;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
     `;
     
     // 组合模态框
@@ -2229,7 +2232,7 @@ function showUserData() {
     buttonsContainer.className = 'button-group';
     buttonsContainer.appendChild(closeBtn);
     
-    modal.querySelector('.modal-content').appendChild(buttonsContainer);
+    modal.querySelector('.modal-content .modal-footer').appendChild(buttonsContainer);
 }
 
 // 加载用户数据
