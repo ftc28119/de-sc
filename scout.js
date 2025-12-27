@@ -558,78 +558,61 @@ function createModal(title, content) {
         z-index: 1000;
     `;
     
+    // 添加模态框的背景遮罩点击关闭功能
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal(modal);
+        }
+    });
+    
     const modalContent = document.createElement('div');
     modalContent.className = 'modal-content';
     modalContent.style.cssText = `
         background-color: white;
         border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         width: 90%;
-        max-width: 500px;
-        max-height: 70vh;
+        max-width: 600px;
+        max-height: 85vh;
         display: flex;
         flex-direction: column;
         position: relative;
-        z-index: 1002;
-        overflow-x: auto;
+        z-index: 1001;
     `;
     
     const modalHeader = document.createElement('div');
     modalHeader.style.cssText = `
-        padding: 20px 20px 0;
+        padding: 20px;
+        border-bottom: 1px solid #e9ecef;
         flex-shrink: 0;
     `;
     
     const modalTitle = document.createElement('h3');
     modalTitle.textContent = title;
-    modalTitle.style.marginBottom = '20px';
+    modalTitle.style.margin: 0;
     modalHeader.appendChild(modalTitle);
     
     const contentDiv = document.createElement('div');
     contentDiv.innerHTML = content;
     contentDiv.style.cssText = `
-        padding: 0 20px;
+        padding: 20px;
         overflow-y: auto;
         flex: 1;
-        max-height: calc(70vh - 120px);
     `;
     
     const modalFooter = document.createElement('div');
     modalFooter.style.cssText = `
-        padding: 20px;
+        padding: 15px 20px;
         border-top: 1px solid #e9ecef;
         flex-shrink: 0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
     `;
     
     modalContent.appendChild(modalHeader);
     modalContent.appendChild(contentDiv);
     modalContent.appendChild(modalFooter);
-    
-    // 添加针对详细数据表格的样式优化
-    const style = document.createElement('style');
-    style.textContent = `
-        .modal-content .detailed-data-table {
-            min-width: auto;
-            max-width: 100%;
-        }
-        
-        .modal-content .detailed-data-table th,
-        .modal-content .detailed-data-table td {
-            padding: 8px 12px;
-            font-size: 14px;
-        }
-        
-        .modal-content .detailed-data-table thead th {
-            white-space: nowrap;
-        }
-        
-        .modal-content .detailed-data-table tbody td {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-    `;
-    modalContent.appendChild(style);
     
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
