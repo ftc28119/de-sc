@@ -1930,47 +1930,98 @@ function importData(file) {
 
 // 加载数据到表单的通用函数
 function loadDataToForm(data) {
-    // 恢复基本信息
-    document.getElementById('teamNumber').value = data.teamNumber || '';
-    document.getElementById('matchName').value = data.matchName || '';
-    document.getElementById('matchType').value = data.matchType || 'Q';
-    document.getElementById('matchNumber').value = data.matchNumber || '1';
-    
-    // 恢复游戏数据
-    if (data.gameData) {
-        gameData = data.gameData;
+    try {
+        console.log('开始加载数据到表单:', data);
+        
+        // 确保数据结构完整
+        if (!data) {
+            throw new Error('没有可用的数据');
+        }
+        
+        // 恢复基本信息
+        document.getElementById('teamNumber').value = data.teamNumber || '';
+        document.getElementById('matchName').value = data.matchName || '';
+        document.getElementById('matchType').value = data.matchType || 'Q';
+        document.getElementById('matchNumber').value = data.matchNumber || '1';
+        
+        // 恢复游戏数据，确保数据结构完整
+        if (data.gameData) {
+            console.log('恢复游戏数据:', data.gameData);
+            // 确保gameData有auto和teleOp属性
+            data.gameData.auto = data.gameData.auto || {
+                overflowArtifacts: 0,
+                classifiedArtifacts: 0,
+                robotLeave: false,
+                slots: Array(9).fill(null).map((_, index) => ({
+                    id: index + 1,
+                    selectedColor: "None",
+                    isCorrect: false
+                }))
+            };
+            
+            data.gameData.teleOp = data.gameData.teleOp || {
+                depotArtifacts: 0,
+                overflowArtifacts: 0,
+                classifiedArtifacts: 0,
+                baseReturnState: "None",
+                slots: Array(9).fill(null).map((_, index) => ({
+                    id: index + 1,
+                    selectedColor: "None",
+                    isCorrect: false
+                }))
+            };
+            
+            data.gameData.general = data.gameData.general || {
+                driverPerformance: CONSTANTS.DEFAULT_DRIVER_RATING,
+                defenseRating: CONSTANTS.DEFAULT_DEFENSE_RATING,
+                diedOnField: false,
+                threeInThree: 0,
+                threeInTwo: 0,
+                threeInOne: 0,
+                notes: ""
+            };
+            
+            gameData = data.gameData;
+        }
+        
+        // 恢复motif
+        if (data.selectedMotif) {
+            selectedMotif = data.selectedMotif;
+            document.getElementById('motif').value = selectedMotif;
+        }
+        
+        console.log('恢复后的gameData:', gameData);
+        
+        // 重新初始化UI
+        initSlots('auto');
+        initSlots('teleOp');
+        
+        // 恢复UI状态
+        document.getElementById('robotLeave').checked = gameData.auto.robotLeave;
+        document.getElementById('autoOverflow').value = gameData.auto.overflowArtifacts;
+        document.getElementById('autoClassified').value = gameData.auto.classifiedArtifacts;
+        document.getElementById('teleOpDepot').value = gameData.teleOp.depotArtifacts;
+        document.getElementById('teleOpOverflow').value = gameData.teleOp.overflowArtifacts;
+        document.getElementById('teleOpClassified').value = gameData.teleOp.classifiedArtifacts;
+        document.getElementById('threeInThree').value = gameData.general.threeInThree || 0;
+        document.getElementById('threeInTwo').value = gameData.general.threeInTwo || 0;
+        document.getElementById('threeInOne').value = gameData.general.threeInOne || 0;
+        document.getElementById('baseReturn').value = gameData.teleOp.baseReturnState;
+        document.getElementById('diedOnField').checked = gameData.general.diedOnField;
+        document.getElementById('notes').value = gameData.general.notes;
+        
+        // 恢复评分
+        setRating('driverRating', gameData.general.driverPerformance);
+        setRating('defenseRating', gameData.general.defenseRating);
+        
+        // 更新实时分数
+        updateLiveScore();
+        
+        console.log('数据加载到表单成功');
+    } catch (error) {
+        console.error('加载数据到表单失败:', error);
+        showError(`加载数据到表单失败: ${error.message}`);
     }
-    
-    // 恢复motif
-    if (data.selectedMotif) {
-        selectedMotif = data.selectedMotif;
-        document.getElementById('motif').value = selectedMotif;
-    }
-    
-    // 重新初始化UI
-    initSlots('auto');
-    initSlots('teleOp');
-    
-    // 恢复UI状态
-    document.getElementById('robotLeave').checked = gameData.auto.robotLeave;
-    document.getElementById('autoOverflow').value = gameData.auto.overflowArtifacts;
-    document.getElementById('autoClassified').value = gameData.auto.classifiedArtifacts;
-    document.getElementById('teleOpDepot').value = gameData.teleOp.depotArtifacts;
-    document.getElementById('teleOpOverflow').value = gameData.teleOp.overflowArtifacts;
-    document.getElementById('teleOpClassified').value = gameData.teleOp.classifiedArtifacts;
-    document.getElementById('threeInThree').value = gameData.general.threeInThree || 0;
-    document.getElementById('threeInTwo').value = gameData.general.threeInTwo || 0;
-    document.getElementById('threeInOne').value = gameData.general.threeInOne || 0;
-    document.getElementById('baseReturn').value = gameData.teleOp.baseReturnState;
-    document.getElementById('diedOnField').checked = gameData.general.diedOnField;
-    document.getElementById('notes').value = gameData.general.notes;
-    
-    // 恢复评分
-    setRating('driverRating', gameData.general.driverPerformance);
-    setRating('defenseRating', gameData.general.defenseRating);
-    
-    // 更新实时分数
-    updateLiveScore();
 }
 
 // 从云端加载数据
