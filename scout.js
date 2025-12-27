@@ -1918,7 +1918,49 @@ function importData(file) {
     reader.onload = function(e) {
         try {
             const data = JSON.parse(e.target.result);
-            loadDataToForm(data);
+            
+            // 恢复基本信息
+            document.getElementById('teamNumber').value = data.teamNumber || '';
+            document.getElementById('matchName').value = data.matchName || '';
+            document.getElementById('matchType').value = data.matchType || 'Q';
+            document.getElementById('matchNumber').value = data.matchNumber || '1';
+            
+            // 恢复游戏数据
+            if (data.gameData) {
+                gameData = data.gameData;
+            }
+            
+            // 恢复motif
+            if (data.selectedMotif) {
+                selectedMotif = data.selectedMotif;
+                document.getElementById('motif').value = selectedMotif;
+            }
+            
+            // 重新初始化UI
+            initSlots('auto');
+            initSlots('teleOp');
+            
+            // 恢复UI状态
+            document.getElementById('robotLeave').checked = gameData.auto.robotLeave;
+            document.getElementById('autoOverflow').value = gameData.auto.overflowArtifacts;
+            document.getElementById('autoClassified').value = gameData.auto.classifiedArtifacts;
+            document.getElementById('teleOpDepot').value = gameData.teleOp.depotArtifacts;
+            document.getElementById('teleOpOverflow').value = gameData.teleOp.overflowArtifacts;
+            document.getElementById('teleOpClassified').value = gameData.teleOp.classifiedArtifacts;
+            document.getElementById('threeInThree').value = gameData.general.threeInThree || 0;
+            document.getElementById('threeInTwo').value = gameData.general.threeInTwo || 0;
+            document.getElementById('threeInOne').value = gameData.general.threeInOne || 0;
+            document.getElementById('baseReturn').value = gameData.teleOp.baseReturnState;
+            document.getElementById('diedOnField').checked = gameData.general.diedOnField;
+            document.getElementById('notes').value = gameData.general.notes;
+            
+            // 恢复评分
+            setRating('driverRating', gameData.general.driverPerformance);
+            setRating('defenseRating', gameData.general.defenseRating);
+            
+            // 更新实时分数
+            updateLiveScore();
+            
             alert('数据导入成功！');
         } catch (error) {
             console.error('数据导入失败:', error);
@@ -1926,540 +1968,6 @@ function importData(file) {
         }
     };
     reader.readAsText(file);
-}
-
-// 加载数据到表单的通用函数
-function loadDataToForm(data) {
-    try {
-        console.log('开始加载数据到表单:', data);
-        
-        // 确保数据结构完整
-        if (!data) {
-            throw new Error('没有可用的数据');
-        }
-        
-        // 恢复基本信息
-        document.getElementById('teamNumber').value = data.teamNumber || '';
-        document.getElementById('matchName').value = data.matchName || '';
-        document.getElementById('matchType').value = data.matchType || 'Q';
-        document.getElementById('matchNumber').value = data.matchNumber || '1';
-        
-        // 恢复游戏数据，确保数据结构完整
-        if (data.gameData) {
-            console.log('恢复游戏数据:', data.gameData);
-            // 确保gameData有auto和teleOp属性
-            data.gameData.auto = data.gameData.auto || {
-                overflowArtifacts: 0,
-                classifiedArtifacts: 0,
-                robotLeave: false,
-                slots: Array(9).fill(null).map((_, index) => ({
-                    id: index + 1,
-                    selectedColor: "None",
-                    isCorrect: false
-                }))
-            };
-            
-            data.gameData.teleOp = data.gameData.teleOp || {
-                depotArtifacts: 0,
-                overflowArtifacts: 0,
-                classifiedArtifacts: 0,
-                baseReturnState: "None",
-                slots: Array(9).fill(null).map((_, index) => ({
-                    id: index + 1,
-                    selectedColor: "None",
-                    isCorrect: false
-                }))
-            };
-            
-            data.gameData.general = data.gameData.general || {
-                driverPerformance: CONSTANTS.DEFAULT_DRIVER_RATING,
-                defenseRating: CONSTANTS.DEFAULT_DEFENSE_RATING,
-                diedOnField: false,
-                threeInThree: 0,
-                threeInTwo: 0,
-                threeInOne: 0,
-                notes: ""
-            };
-            
-            gameData = data.gameData;
-        }
-        
-        // 恢复motif
-        if (data.selectedMotif) {
-            selectedMotif = data.selectedMotif;
-            document.getElementById('motif').value = selectedMotif;
-        }
-        
-        console.log('恢复后的gameData:', gameData);
-        
-        // 重新初始化UI
-        initSlots('auto');
-        initSlots('teleOp');
-        
-        // 恢复UI状态
-        document.getElementById('robotLeave').checked = gameData.auto.robotLeave;
-        document.getElementById('autoOverflow').value = gameData.auto.overflowArtifacts;
-        document.getElementById('autoClassified').value = gameData.auto.classifiedArtifacts;
-        document.getElementById('teleOpDepot').value = gameData.teleOp.depotArtifacts;
-        document.getElementById('teleOpOverflow').value = gameData.teleOp.overflowArtifacts;
-        document.getElementById('teleOpClassified').value = gameData.teleOp.classifiedArtifacts;
-        document.getElementById('threeInThree').value = gameData.general.threeInThree || 0;
-        document.getElementById('threeInTwo').value = gameData.general.threeInTwo || 0;
-        document.getElementById('threeInOne').value = gameData.general.threeInOne || 0;
-        document.getElementById('baseReturn').value = gameData.teleOp.baseReturnState;
-        document.getElementById('diedOnField').checked = gameData.general.diedOnField;
-        document.getElementById('notes').value = gameData.general.notes;
-        
-        // 恢复评分
-        setRating('driverRating', gameData.general.driverPerformance);
-        setRating('defenseRating', gameData.general.defenseRating);
-        
-        // 更新实时分数
-        updateLiveScore();
-        
-        console.log('数据加载到表单成功');
-    } catch (error) {
-        console.error('加载数据到表单失败:', error);
-        showError(`加载数据到表单失败: ${error.message}`);
-    }
-}
-
-// 从云端加载数据
-async function loadFromCloud() {
-    console.log('loadFromCloud函数被调用');
-    
-    // 创建加载模态框
-    const loadingModal = document.createElement('div');
-    loadingModal.id = 'loadingModal';
-    loadingModal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-        font-size: 20px;
-        color: white;
-    `;
-    loadingModal.innerHTML = `
-        <div style="background-color: rgba(52, 152, 219, 0.9); padding: 20px 40px; border-radius: 8px; text-align: center;">
-            <div style="border: 4px solid rgba(255, 255, 255, 0.3); border-top: 4px solid white; border-radius: 50%; width: 40px; height: 40px; margin: 0 auto 15px; animation: spin 1s linear infinite;"></div>
-            <div>加载云端数据中...</div>
-        </div>
-    `;
-    document.body.appendChild(loadingModal);
-    
-    // 添加旋转动画
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    `;
-    document.head.appendChild(style);
-    
-    try {
-        // 直接使用固定的本地地址进行测试
-        const apiUrl = 'http://localhost:8080';
-        console.log('使用的API地址:', apiUrl);
-        
-        // 从云端获取所有比赛数据
-        const response = await fetch(`${apiUrl}/api/scouting-data`);
-        console.log('API响应状态:', response.status);
-        
-        // 移除加载模态框
-        document.body.removeChild(loadingModal);
-        
-        if (!response.ok) {
-            throw new Error(`获取云端数据失败，状态码: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        console.log('API响应结果:', result);
-        
-        const allData = result.data || [];
-        console.log('所有数据:', allData);
-        
-        if (allData.length === 0) {
-            // 显示没有数据的模态框
-            const noDataModal = document.createElement('div');
-            noDataModal.id = 'noDataModal';
-            noDataModal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.5);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 9999;
-            `;
-            
-            const noDataModalContent = document.createElement('div');
-            noDataModalContent.style.cssText = `
-                background-color: white;
-                padding: 20px;
-                border-radius: 8px;
-                width: 80%;
-                max-width: 500px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-                text-align: center;
-            `;
-            
-            const noDataModalTitle = document.createElement('h2');
-            noDataModalTitle.textContent = '没有可用的数据';
-            noDataModalTitle.style.marginBottom = '20px';
-            
-            const noDataModalText = document.createElement('p');
-            noDataModalText.textContent = '云端没有可用的数据，请先提交一些数据。';
-            noDataModalText.style.marginBottom = '20px';
-            
-            const noDataCloseBtn = document.createElement('button');
-            noDataCloseBtn.textContent = '关闭';
-            noDataCloseBtn.style.cssText = `
-                padding: 10px 20px;
-                background-color: #3498db;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 16px;
-            `;
-            noDataCloseBtn.onclick = () => {
-                document.body.removeChild(noDataModal);
-            };
-            
-            noDataModalContent.appendChild(noDataModalTitle);
-            noDataModalContent.appendChild(noDataModalText);
-            noDataModalContent.appendChild(noDataCloseBtn);
-            noDataModal.appendChild(noDataModalContent);
-            document.body.appendChild(noDataModal);
-            
-            return;
-        }
-        
-        // 创建选择数据的模态框
-        const selectModal = document.createElement('div');
-        selectModal.id = 'cloudDataModal';
-        selectModal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        `;
-        
-        // 创建一个简单的选择数据的HTML
-        let selectHtml = '<select id="cloudDataSelect" style="width: 100%; padding: 10px; margin-bottom: 20px; font-size: 16px;">';
-        allData.forEach((item, index) => {
-            console.log('处理数据项:', index, item);
-            const displayText = `${item.teamNumber || '未知'} - ${item.matchName || '未知'} - ${item.matchType || 'Q'}${item.matchNumber || '0'} - 总分: ${item.score || 0}`;
-            selectHtml += `<option value="${index}">${displayText}</option>`;
-        });
-        selectHtml += '</select>';
-        
-        const selectModalContent = document.createElement('div');
-        selectModalContent.style.cssText = `
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 500px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        `;
-        
-        const selectModalTitle = document.createElement('h2');
-        selectModalTitle.textContent = '选择要加载的数据';
-        selectModalTitle.style.marginBottom = '20px';
-        selectModalTitle.style.textAlign = 'center';
-        
-        const contentDiv = document.createElement('div');
-        contentDiv.innerHTML = selectHtml;
-        
-        const buttonsDiv = document.createElement('div');
-        buttonsDiv.style.cssText = `
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        `;
-        
-        const loadBtn = document.createElement('button');
-        loadBtn.textContent = '加载数据';
-        loadBtn.style.cssText = `
-            padding: 10px 20px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        `;
-        loadBtn.onclick = () => {
-            console.log('加载按钮被点击');
-            const selectElement = document.getElementById('cloudDataSelect');
-            if (!selectElement) {
-                console.error('找不到cloudDataSelect元素');
-                return;
-            }
-            const selectedIndex = parseInt(selectElement.value);
-            const selectedData = allData[selectedIndex];
-            
-            if (selectedData) {
-                console.log('开始加载数据到表单:', selectedData);
-                
-                // 直接手动加载数据到表单
-                document.getElementById('teamNumber').value = selectedData.teamNumber || '';
-                document.getElementById('matchName').value = selectedData.matchName || '';
-                document.getElementById('matchType').value = selectedData.matchType || 'Q';
-                document.getElementById('matchNumber').value = selectedData.matchNumber || '1';
-                
-                // 恢复motif
-                if (selectedData.selectedMotif) {
-                    selectedMotif = selectedData.selectedMotif;
-                    document.getElementById('motif').value = selectedMotif;
-                }
-                
-                // 恢复游戏数据
-                if (selectedData.gameData) {
-                    gameData = selectedData.gameData;
-                    
-                    // 确保数据结构完整
-                    gameData.auto = gameData.auto || {
-                        overflowArtifacts: 0,
-                        classifiedArtifacts: 0,
-                        robotLeave: false,
-                        slots: Array(9).fill(null).map((_, index) => ({
-                            id: index + 1,
-                            selectedColor: "None",
-                            isCorrect: false
-                        }))
-                    };
-                    
-                    gameData.teleOp = gameData.teleOp || {
-                        depotArtifacts: 0,
-                        overflowArtifacts: 0,
-                        classifiedArtifacts: 0,
-                        baseReturnState: "None",
-                        slots: Array(9).fill(null).map((_, index) => ({
-                            id: index + 1,
-                            selectedColor: "None",
-                            isCorrect: false
-                        }))
-                    };
-                    
-                    gameData.general = gameData.general || {
-                        driverPerformance: CONSTANTS.DEFAULT_DRIVER_RATING,
-                        defenseRating: CONSTANTS.DEFAULT_DEFENSE_RATING,
-                        diedOnField: false,
-                        threeInThree: 0,
-                        threeInTwo: 0,
-                        threeInOne: 0,
-                        notes: ""
-                    };
-                    
-                    // 恢复UI状态
-                    document.getElementById('robotLeave').checked = gameData.auto.robotLeave;
-                    document.getElementById('autoOverflow').value = gameData.auto.overflowArtifacts;
-                    document.getElementById('autoClassified').value = gameData.auto.classifiedArtifacts;
-                    document.getElementById('teleOpDepot').value = gameData.teleOp.depotArtifacts;
-                    document.getElementById('teleOpOverflow').value = gameData.teleOp.overflowArtifacts;
-                    document.getElementById('teleOpClassified').value = gameData.teleOp.classifiedArtifacts;
-                    document.getElementById('threeInThree').value = gameData.general.threeInThree || 0;
-                    document.getElementById('threeInTwo').value = gameData.general.threeInTwo || 0;
-                    document.getElementById('threeInOne').value = gameData.general.threeInOne || 0;
-                    document.getElementById('baseReturn').value = gameData.teleOp.baseReturnState;
-                    document.getElementById('diedOnField').checked = gameData.general.diedOnField;
-                    document.getElementById('notes').value = gameData.general.notes;
-                    
-                    // 恢复评分
-                    setRating('driverRating', gameData.general.driverPerformance);
-                    setRating('defenseRating', gameData.general.defenseRating);
-                    
-                    // 重新初始化UI
-                    initSlots('auto');
-                    initSlots('teleOp');
-                    
-                    // 更新实时分数
-                    updateLiveScore();
-                }
-                
-                // 关闭模态框
-                document.body.removeChild(selectModal);
-                
-                // 显示成功提示
-                const successModal = document.createElement('div');
-                successModal.id = 'successModal';
-                successModal.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background-color: rgba(0, 0, 0, 0.5);
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    z-index: 9999;
-                `;
-                
-                const successModalContent = document.createElement('div');
-                successModalContent.style.cssText = `
-                    background-color: white;
-                    padding: 20px;
-                    border-radius: 8px;
-                    width: 80%;
-                    max-width: 500px;
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-                    text-align: center;
-                `;
-                
-                const successModalTitle = document.createElement('h2');
-                successModalTitle.textContent = '数据加载成功';
-                successModalTitle.style.marginBottom = '20px';
-                
-                const successModalText = document.createElement('p');
-                successModalText.textContent = '数据已成功加载到表单中。';
-                successModalText.style.marginBottom = '20px';
-                
-                const successCloseBtn = document.createElement('button');
-                successCloseBtn.textContent = '关闭';
-                successCloseBtn.style.cssText = `
-                    padding: 10px 20px;
-                    background-color: #3498db;
-                    color: white;
-                    border: none;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    font-size: 16px;
-                `;
-                successCloseBtn.onclick = () => {
-                    document.body.removeChild(successModal);
-                };
-                
-                successModalContent.appendChild(successModalTitle);
-                successModalContent.appendChild(successModalText);
-                successModalContent.appendChild(successCloseBtn);
-                successModal.appendChild(successModalContent);
-                document.body.appendChild(successModal);
-                
-                console.log('数据加载成功');
-            }
-        };
-        
-        const cancelBtn = document.createElement('button');
-        cancelBtn.textContent = '取消';
-        cancelBtn.style.cssText = `
-            padding: 10px 20px;
-            background-color: #95a5a6;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        `;
-        cancelBtn.onclick = () => {
-            console.log('取消按钮被点击');
-            document.body.removeChild(selectModal);
-        };
-        
-        buttonsDiv.appendChild(loadBtn);
-        buttonsDiv.appendChild(cancelBtn);
-        
-        selectModalContent.appendChild(selectModalTitle);
-        selectModalContent.appendChild(contentDiv);
-        selectModalContent.appendChild(buttonsDiv);
-        selectModal.appendChild(selectModalContent);
-        document.body.appendChild(selectModal);
-        
-        console.log('模态框创建完成并添加到body');
-        
-    } catch (error) {
-        console.error('加载云端数据失败:', error);
-        console.error('错误堆栈:', error.stack);
-        
-        // 移除加载模态框（如果存在）
-        const loadingModal = document.getElementById('loadingModal');
-        if (loadingModal) {
-            document.body.removeChild(loadingModal);
-        }
-        
-        // 显示错误模态框
-        const errorModal = document.createElement('div');
-        errorModal.id = 'errorModal';
-        errorModal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        `;
-        
-        const errorModalContent = document.createElement('div');
-        errorModalContent.style.cssText = `
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 500px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        `;
-        
-        const errorModalTitle = document.createElement('h2');
-        errorModalTitle.textContent = '加载数据失败';
-        errorModalTitle.style.marginBottom = '20px';
-        
-        const errorModalText = document.createElement('p');
-        errorModalText.textContent = `加载云端数据失败: ${error.message}`;
-        errorModalText.style.marginBottom = '20px';
-        
-        const errorCloseBtn = document.createElement('button');
-        errorCloseBtn.textContent = '关闭';
-        errorCloseBtn.style.cssText = `
-            padding: 10px 20px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        `;
-        errorCloseBtn.onclick = () => {
-            document.body.removeChild(errorModal);
-        };
-        
-        errorModalContent.appendChild(errorModalTitle);
-        errorModalContent.appendChild(errorModalText);
-        errorModalContent.appendChild(errorCloseBtn);
-        errorModal.appendChild(errorModalContent);
-        document.body.appendChild(errorModal);
-    }
-}
-
-// 测试加载云端数据函数
-function testLoadFromCloud() {
-    console.log('testLoadFromCloud函数被调用');
-    
-    // 直接调用loadFromCloud函数
-    loadFromCloud();
 }
 
 // 显示用户数据
@@ -2755,7 +2263,7 @@ function showDetailedData(item) {
                 
                 <!-- 一般数据 -->
                 <tr>
-                    <td rowspan="6">一般数据</td>
+                    <td rowspan="3">一般数据</td>
                     <td>驾驶员评分</td>
                     <td>${item.gameData.general.driverPerformance}</td>
                 </tr>
@@ -2766,18 +2274,6 @@ function showDetailedData(item) {
                 <tr>
                     <td>机器人故障</td>
                     <td>${item.gameData.general.diedOnField ? '是' : '否'}</td>
-                </tr>
-                <tr>
-                    <td>投3中3次数</td>
-                    <td>${item.gameData.general.threeInThree || 0}</td>
-                </tr>
-                <tr>
-                    <td>投3中2次数</td>
-                    <td>${item.gameData.general.threeInTwo || 0}</td>
-                </tr>
-                <tr>
-                    <td>投3中1次数</td>
-                    <td>${item.gameData.general.threeInOne || 0}</td>
                 </tr>
             </tbody>
         </table>
