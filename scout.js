@@ -1979,24 +1979,29 @@ async function loadFromCloud() {
         showLoading('加载云端数据中...');
         
         // 从云端获取所有比赛数据
-        const response = await fetch(`${getApiUrl()}/api/scouting-data`);
+        const apiUrl = getApiUrl();
+        console.log('使用的API地址:', apiUrl);
+        const response = await fetch(`${apiUrl}/api/scouting-data`);
+        
+        console.log('API响应状态:', response.status);
         
         if (!response.ok) {
-            throw new Error('获取云端数据失败');
+            throw new Error(`获取云端数据失败，状态码: ${response.status}`);
         }
         
         const result = await response.json();
+        console.log('API响应结果:', result);
         const allData = result.data || [];
         
         hideLoading();
         
         if (allData.length === 0) {
-            alert('云端没有可用的数据');
+            showError('云端没有可用的数据');
             return;
         }
         
         // 创建选择数据的模态框
-        let dataListHtml = '<select id="cloudDataSelect" style="width: 100%; padding: 10px; border-radius: 4px; border: 2px solid #ddd; font-size: 16px;">';
+        let dataListHtml = '<select id="cloudDataSelect" style="width: 100%; padding: 10px; border-radius: 4px; border: 2px solid #ddd; font-size: 16px; margin-bottom: 20px;">';
         allData.forEach((item, index) => {
             const displayText = `${item.teamNumber} - ${item.matchName} - ${item.matchType}${item.matchNumber} - 总分: ${item.score}`;
             dataListHtml += `<option value="${index}">${displayText}</option>`;
@@ -2018,7 +2023,7 @@ async function loadFromCloud() {
                 // 加载选中的数据到表单
                 loadDataToForm(selectedData);
                 closeModal(modal);
-                alert('数据加载成功！');
+                showSuccess('数据加载成功！');
             }
         };
         
@@ -2037,7 +2042,7 @@ async function loadFromCloud() {
     } catch (error) {
         console.error('加载云端数据失败:', error);
         hideLoading();
-        alert('加载云端数据失败，请检查网络连接或稍后重试');
+        showError(`加载云端数据失败: ${error.message}`);
     }
 }
 
