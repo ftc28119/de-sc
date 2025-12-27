@@ -2263,7 +2263,7 @@ function showDetailedData(item) {
                 
                 <!-- 一般数据 -->
                 <tr>
-                    <td rowspan="3">一般数据</td>
+                    <td rowspan="6">一般数据</td>
                     <td>驾驶员评分</td>
                     <td>${item.gameData.general.driverPerformance}</td>
                 </tr>
@@ -2274,6 +2274,18 @@ function showDetailedData(item) {
                 <tr>
                     <td>机器人故障</td>
                     <td>${item.gameData.general.diedOnField ? '是' : '否'}</td>
+                </tr>
+                <tr>
+                    <td>投3中3次数</td>
+                    <td>${item.gameData.general.threeInThree || 0}</td>
+                </tr>
+                <tr>
+                    <td>投3中2次数</td>
+                    <td>${item.gameData.general.threeInTwo || 0}</td>
+                </tr>
+                <tr>
+                    <td>投3中1次数</td>
+                    <td>${item.gameData.general.threeInOne || 0}</td>
                 </tr>
             </tbody>
         </table>
