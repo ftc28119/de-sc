@@ -2267,11 +2267,11 @@ async function loadUserData() {
         if (response.ok) {
             const result = await response.json();
             
-            // 过滤数据：先只显示当前用户队伍的数据
+            // 过滤数据：先只显示当前用户队伍记录的数据
             let filteredData = result.data || [];
-            filteredData = filteredData.filter(item => item.teamNumber === userTeam);
+            filteredData = filteredData.filter(item => item.teamId === userTeam);
             
-            // 然后根据搜索条件过滤
+            // 然后根据搜索条件过滤被记录的队伍编号
             if (searchTeamNumber) {
                 filteredData = filteredData.filter(item => item.teamNumber === searchTeamNumber);
             }
