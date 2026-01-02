@@ -2281,43 +2281,42 @@ async function loadUserData() {
         // 用户只能查看自己队伍记录的数据
         const userTeam = currentUser.team;
         
-        // 构建API请求URL，添加团队ID筛选
-        const apiUrl = `${getApiUrl()}/api/scouting-data?teamId=${encodeURIComponent(userTeam)}`;
-        const response = await fetch(apiUrl);
+        // 直接获取所有数据，然后在前端严格过滤
+        const response = await fetch(`${getApiUrl()}/api/scouting-data`);
         
         if (response.ok) {
             const result = await response.json();
             
-            // 1. 先获取当前用户的队伍
-            const userTeam = currentUser.team;
+            console.log('=== 调试信息 ===');
+            console.log('当前用户:', currentUser.username);
             console.log('当前用户队伍:', userTeam);
+            console.log('API返回总数据量:', result.data.length);
             
-            // 2. 遍历数据，查看实际的数据结构
+            // 遍历数据，查看实际的数据结构
             result.data.forEach((item, index) => {
                 console.log(`数据项${index}的完整结构:`, item);
                 console.log(`数据项${index}的teamNumber:`, item.teamNumber);
                 console.log(`数据项${index}的teamId:`, item.teamId);
-                console.log(`数据项${index}的team:`, item.team);
-                console.log(`数据项${index}的其他可能字段:`, Object.keys(item));
             });
             
-            // 3. 过滤数据：只保留当前用户队伍记录的数据
-            // 先过滤出所有当前用户队伍记录的数据
-            const userTeamRecordedData = result.data.filter(item => {
-                // 检查多种可能的记录者队伍字段
-                return item.teamId === userTeam || 
-                       item.team === userTeam || 
-                       item.recordedByTeam === userTeam || 
-                       item.scoutTeam === userTeam || 
-                       item.recordTeam === userTeam;
+            // 严格过滤：只保留当前用户队伍记录的数据（使用teamId字段）
+            // submitData函数中明确设置了teamId为当前用户的队伍，所以只需要检查这个字段
+            let filteredData = result.data.filter(item => {
+                // 只保留当前用户队伍记录的数据
+                return item.teamId === userTeam;
             });
+            
+            console.log('当前队伍记录的数据量:', filteredData.length);
             
             // 然后根据搜索条件过滤被记录的队伍编号
-            const filteredData = userTeamRecordedData.filter(item => {
-                return !searchTeamNumber || item.teamNumber === searchTeamNumber;
-            });
+            if (searchTeamNumber) {
+                filteredData = filteredData.filter(item => {
+                    return item.teamNumber === searchTeamNumber;
+                });
+            }
             
-            console.log('过滤后数据量:', filteredData.length);
+            console.log('搜索后数据量:', filteredData.length);
+            console.log('=== 调试结束 ===');
             
             // 更新表格
             const tableBody = document.getElementById('userDataTableBody');
