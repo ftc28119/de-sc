@@ -2,7 +2,7 @@
 
 ## 项目介绍
 
-这是一个用于FTC机器人比赛的侦察数据管理系统，帮助队伍记录、管理和分析比赛数据，提升比赛表现。
+此WEB是#28119为First Tech Challenge Season 2025-2026 DECODE设计的scouting APP
 
 ## 快速开始
 
